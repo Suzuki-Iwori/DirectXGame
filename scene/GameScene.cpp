@@ -8,6 +8,7 @@ GameScene::~GameScene() {
 
 	delete model_;
 	delete player_;
+	delete debugCamera_;
 
 }
 
@@ -17,16 +18,30 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	textureHandle_ = TextureManager::Load("./Resources/sample.png");
+	textureHandle_ = TextureManager::Load("./Resources/white1x1.png");
 	model_ = Model::Create();
 	viewProjection_.Initialize();
 	player_ = new Player;
 	player_->Initialize(model_, textureHandle_);
-
+	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
 }
 
 void GameScene::Update() {
+
+	/* #ifdef DEBUG
+	if (input_->TriggerKey(DIK_Q)) {
+		!isDebugCameraActive_;
+	}
+	#endif
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+		viewProjection_.matView = ;
+
+	}*/
+
+
 
 	player_->Update();
 

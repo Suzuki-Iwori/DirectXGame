@@ -3,6 +3,7 @@
 #include <Model.h>
 #include <WorldTransform.h>
 #include <Input.h>
+#include <ImGuiManager.h>
 #include <cassert>
 
 class Player {
@@ -11,7 +12,7 @@ public:
 
 	void Update();
 
-	void Draw(ViewProjection viewProjection);
+	void Draw(ViewProjection& viewProjection);
 
 private:
 	uint32_t textureHandle_ = 0u;
