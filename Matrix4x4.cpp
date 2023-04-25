@@ -164,8 +164,8 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 	Matrix4x4 matScale = MakeScaleMatrix(scale);
 
 	Matrix4x4 matRotateX = MakeRotateXMatrix(rotate.x);
-	Matrix4x4 matRotateY = MakeRotateXMatrix(rotate.y);
-	Matrix4x4 matRotateZ = MakeRotateXMatrix(rotate.z);
+	Matrix4x4 matRotateY = MakeRotateYMatrix(rotate.y);
+	Matrix4x4 matRotateZ = MakeRotateZMatrix(rotate.z);
 
 	Matrix4x4 matRotate = matRotateZ * matRotateX * matRotateY;
 
