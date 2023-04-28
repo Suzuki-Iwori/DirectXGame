@@ -31,15 +31,13 @@ void Player::Update() {
 		move.y -= kCharacterSpeed;
 	}
 
-	if (input_->PushKey(DIK_Q)) {
-		move.z += kCharacterSpeed;
-	} else if (input_->PushKey(DIK_E)) {
-		move.z -= kCharacterSpeed;
-	}
-
 	worldTransform_.translation_.x += move.x;
 	worldTransform_.translation_.y += move.y;
 	worldTransform_.translation_.z += move.z;
+
+	worldTransform_.rotation_.x += move.z;
+	worldTransform_.rotation_.y += move.x;
+	worldTransform_.rotation_.z += move.y;
 
 	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kLimitX);
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kLimitX);
