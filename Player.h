@@ -5,6 +5,7 @@
 #include <Input.h>
 #include <ImGuiManager.h>
 #include <cassert>
+#include "PlayerBullet.h"
 
 class Player {
 public:
@@ -14,9 +15,16 @@ public:
 
 	void Draw(ViewProjection& viewProjection);
 
+	void Rotate();
+
+	void Attack();
+
+	~Player();
+
 private:
 	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	Input* input_ = nullptr;
+	PlayerBullet* playerBullet_ = nullptr;
 };
