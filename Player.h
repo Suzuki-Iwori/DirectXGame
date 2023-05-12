@@ -6,6 +6,7 @@
 #include <ImGuiManager.h>
 #include <cassert>
 #include "PlayerBullet.h"
+#include <list>
 
 class Player {
 public:
@@ -26,5 +27,5 @@ private:
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	Input* input_ = nullptr;
-	PlayerBullet* playerBullet_ = nullptr;
+	std::list<PlayerBullet*> playerBullets_;
 };

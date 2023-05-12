@@ -12,6 +12,15 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 }
 void Player::Update() {
 
+	playerBullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		} else {
+			return false;
+		}
+	});
+
 	Vector3 move = {0, 0, 0};
 	const float kCharacterSpeed = 0.2f;
 
@@ -52,25 +61,24 @@ void Player::Update() {
 
 	Attack();
 
-	if (playerBullet_ != nullptr) {
-		playerBullet_->Update();
+	for (PlayerBullet* bullet : playerBullets_) {
+		bullet->Update();
 	}
-
 
 }
 void Player::Draw(ViewProjection& viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
-	if (playerBullet_ != nullptr) {
-		playerBullet_->Draw(viewProjection);
+	for (PlayerBullet* bullet : playerBullets_) {
+		bullet->Draw(viewProjection);
 	}
 
 
 }
 void Player::Rotate() {
 
-	const float kRotateSpeed = 0.02f;
+	const float kRotateSpeed = 0.02f;	
 
 	if (input_->PushKey(DIK_A)) {
 		worldTransform_.rotation_.y -= kRotateSpeed;
@@ -82,11 +90,22 @@ void Player::Rotate() {
 
 void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
-		PlayerBullet* newBullet = new PlayerBullet;
-		newBullet->Initialize(model_, worldTransform_.translation_);
 
-		playerBullet_ = newBullet;
+		const float bulletSpeed = 1.0f;
+		Vector3 velosity(0.0f, 0.0f, bulletSpeed);
+
+		velosity = TransformNormal(velosity, worldTransform_.matWorld_);
+
+		PlayerBullet* newBullet = new PlayerBullet;
+		newBullet->Initialize(model_, worldTransform_.translation_, velosity);
+
+		playerBullets_.push_back(newBullet);
+
 	}
 }
 
-Player::~Player() { delete playerBullet_; }
+Player::~Player() { 
+	for (PlayerBullet* bullet : playerBullets_) {
+		delete bullet;
+	}
+}
