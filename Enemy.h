@@ -10,6 +10,9 @@ public:
 
 	void Update();
 
+	void ApproachingMove();
+	void LeavingMove();
+
 	void Draw(const ViewProjection& viewProjection);
 
 private:
@@ -18,6 +21,8 @@ private:
 		Approach,
 		Leave,
 	};
+
+	static void (Enemy::*MoveFanction[])();
 
 	const int32_t kLifeCount = 60 * 5;
 	uint32_t textureHandle_ = 0u;

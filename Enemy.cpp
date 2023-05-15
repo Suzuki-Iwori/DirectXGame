@@ -12,24 +12,28 @@ void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& vel
 }
 void Enemy::Update() {
 
-	switch (phase_) { 
-	case Phase::Approach:
-	default:
-		worldTransform_.translation_ += velosity_;
-		if (worldTransform_.translation_.z < 0.0f) {
-			phase_ = Phase::Leave;
-		}
-		break;
-
-	case Phase::Leave:
-		worldTransform_.translation_ += {0.0f, 1.0f, 0.0f};
-		break;
-
-	}
+	(this->*MoveFanction[static_cast<size_t>(phase_)])();
 
 	worldTransform_.UpdateMatrix();
 
 }
+void Enemy::ApproachingMove() {
+	worldTransform_.translation_ += velosity_;
+
+	if (worldTransform_.translation_.z < 0.0f) {
+		phase_ = Phase::Leave;
+	}
+
+}
+void Enemy::LeavingMove() { 
+	worldTransform_.translation_ += {0.0f, 1.0f, 0.0f}; 
+}
+
+void (Enemy::*Enemy::MoveFanction[])() = {
+	&Enemy::ApproachingMove, 
+	&Enemy::LeavingMove
+};
+
 void Enemy::Draw(const ViewProjection& viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
