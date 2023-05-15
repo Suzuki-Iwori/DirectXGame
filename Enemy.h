@@ -13,9 +13,16 @@ public:
 	void Draw(const ViewProjection& viewProjection);
 
 private:
+
+	enum class Phase {
+		Approach,
+		Leave,
+	};
+
 	const int32_t kLifeCount = 60 * 5;
 	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	Vector3 velosity_{};
+	Phase phase_ = Phase::Approach;
 };

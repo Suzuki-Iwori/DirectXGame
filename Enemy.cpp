@@ -12,7 +12,20 @@ void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& vel
 }
 void Enemy::Update() {
 
-	worldTransform_.translation_ += velosity_;
+	switch (phase_) { 
+	case Phase::Approach:
+	default:
+		worldTransform_.translation_ += velosity_;
+		if (worldTransform_.translation_.z < 0.0f) {
+			phase_ = Phase::Leave;
+		}
+		break;
+
+	case Phase::Leave:
+		worldTransform_.translation_ += {0.0f, 1.0f, 0.0f};
+		break;
+
+	}
 
 	worldTransform_.UpdateMatrix();
 
