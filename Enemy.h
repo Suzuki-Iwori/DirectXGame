@@ -3,6 +3,8 @@
 #include <Model.h>
 #include <WorldTransform.h>
 #include <cassert>
+#include "EnemyBullet.h"
+#include <list>
 
 class Enemy {
 public:
@@ -13,7 +15,12 @@ public:
 	void ApproachingMove();
 	void LeavingMove();
 
+	void ApproachingInitialize();
+	void Fire();
+
 	void Draw(const ViewProjection& viewProjection);
+
+	~Enemy();
 
 private:
 
@@ -24,10 +31,13 @@ private:
 
 	static void (Enemy::*MoveFanction[])();
 
-	const int32_t kLifeCount = 60 * 5;
+	const int32_t kFireInterval = 60;
+
 	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	Vector3 velosity_{};
 	Phase phase_ = Phase::Approach;
+	std::list<EnemyBullet*> enemyBullets_;
+	int32_t fireCount = 0;
 };
