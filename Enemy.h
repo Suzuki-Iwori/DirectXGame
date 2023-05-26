@@ -6,6 +6,8 @@
 #include "EnemyBullet.h"
 #include <list>
 
+class Player;
+
 class Enemy {
 public:
 	void Initialize(Model* model, const Vector3& position, const Vector3& velosity);
@@ -20,7 +22,11 @@ public:
 
 	void Draw(const ViewProjection& viewProjection);
 
+	void SetPlayer(Player* player) { player_ = player; }
+
 	~Enemy();
+
+	Vector3 GetWorldPosition();
 
 private:
 
@@ -40,4 +46,7 @@ private:
 	Phase phase_ = Phase::Approach;
 	std::list<EnemyBullet*> enemyBullets_;
 	int32_t fireCount = 0;
+
+	Player* player_ = nullptr;
+
 };

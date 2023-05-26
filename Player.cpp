@@ -109,3 +109,13 @@ Player::~Player() {
 		delete bullet;
 	}
 }
+
+Vector3 Player::GetWorldPosition() {
+	Vector3 worldPosition{};
+
+	worldPosition.x = worldTransform_.translation_.x;
+	worldPosition.y = worldTransform_.translation_.y;
+	worldPosition.z = worldTransform_.translation_.z;
+
+	return worldPosition;
+}

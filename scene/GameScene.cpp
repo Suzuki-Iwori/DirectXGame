@@ -28,6 +28,7 @@ void GameScene::Initialize() {
 
 	enemy_ = new Enemy;
 	enemy_->Initialize(model_, {20.0f, 0.0f, 180.0f}, {0.0f, 0.0f, -0.5f});
+	enemy_->SetPlayer(player_);
 
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	AxisIndicator::GetInstance()->SetVisible(true);

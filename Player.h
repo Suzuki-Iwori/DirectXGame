@@ -22,6 +22,8 @@ public:
 
 	~Player();
 
+	Vector3 GetWorldPosition();
+
 private:
 	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;

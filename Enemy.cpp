@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Player.h"
 
 void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& velosity) {
 	assert(model);
@@ -50,8 +51,13 @@ void Enemy::ApproachingInitialize() {
 }
 
 void Enemy::Fire() {
-		const float bulletSpeed = -1.0f;
-		Vector3 velosity(0.0f, 0.0f, bulletSpeed);
+		const float bulletSpeed = 0.2f;
+
+
+		Vector3 velosity =
+	        Normalize((player_->GetWorldPosition() - GetWorldPosition()));
+
+		velosity *= bulletSpeed;
 
 		velosity = TransformNormal(velosity, worldTransform_.matWorld_);
 
@@ -80,4 +86,14 @@ Enemy::~Enemy() {
 	for (EnemyBullet* bullet : enemyBullets_) {
 		delete bullet;
 	}
+}
+
+Vector3 Enemy::GetWorldPosition() {
+	Vector3 worldPosition{};
+
+	worldPosition.x = worldTransform_.translation_.x;
+	worldPosition.y = worldTransform_.translation_.y;
+	worldPosition.z = worldTransform_.translation_.z;
+
+	return worldPosition;
 }
