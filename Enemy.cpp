@@ -40,7 +40,7 @@ void Enemy::ApproachingMove() {
 
 }
 void Enemy::LeavingMove() { 
-	worldTransform_.translation_ += {0.0f, 1.0f, 1.0f}; 
+	worldTransform_.translation_ += {1.0f, 0.0f, 1.0f}; 
 }
 
 void Enemy::ApproachingInitialize() {
