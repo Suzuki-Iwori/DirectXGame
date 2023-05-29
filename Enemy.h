@@ -24,9 +24,12 @@ public:
 
 	void SetPlayer(Player* player) { player_ = player; }
 
+	void OnCollision();
+
 	~Enemy();
 
 	Vector3 GetWorldPosition();
+	const std::list<EnemyBullet*>& GetBullets() { return enemyBullets_; };
 
 private:
 

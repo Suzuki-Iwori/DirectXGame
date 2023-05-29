@@ -12,10 +12,13 @@ public:
 
 	void Draw(const ViewProjection& viewProjection);
 
+	void OnCollision();
+
 	bool IsDead() const { return isDead_; };
+	Vector3 GetWorldPosition();
 
 private:
-	const int32_t kLifeCount = 60 * 3;
+	const int32_t kLifeCount = 60 * 20;
 	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;

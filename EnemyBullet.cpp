@@ -24,3 +24,13 @@ void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 }
+void EnemyBullet::OnCollision() { isDead_ = true; }
+Vector3 EnemyBullet::GetWorldPosition() {
+	Vector3 worldPosition{};
+
+	worldPosition.x = worldTransform_.translation_.x;
+	worldPosition.y = worldTransform_.translation_.y;
+	worldPosition.z = worldTransform_.translation_.z;
+
+	return worldPosition;
+}

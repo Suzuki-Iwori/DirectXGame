@@ -53,12 +53,6 @@ void Player::Update() {
 
 	worldTransform_.UpdateMatrix();
 
-	ImGui::Begin("worldTransform");
-	ImGui::Text(
-	    "%8.4f %8.4f %8.4f", worldTransform_.translation_.x, worldTransform_.translation_.y,
-	    worldTransform_.translation_.z);
-	ImGui::End();
-
 	Attack();
 
 	for (PlayerBullet* bullet : playerBullets_) {
@@ -73,7 +67,6 @@ void Player::Draw(ViewProjection& viewProjection) {
 	for (PlayerBullet* bullet : playerBullets_) {
 		bullet->Draw(viewProjection);
 	}
-
 
 }
 void Player::Rotate() {
@@ -103,6 +96,8 @@ void Player::Attack() {
 
 	}
 }
+
+void Player::OnCollision() {}
 
 Player::~Player() { 
 	for (PlayerBullet* bullet : playerBullets_) {

@@ -58,6 +58,8 @@ void GameScene::Update() {
 		enemy_->Update();	
 	}
 
+	CheckAllCollisions();
+
 }
 
 void GameScene::Draw() {
@@ -109,4 +111,65 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::CheckAllCollisions() {
+	Vector3 PosA{}, PosB{};
+
+	PosA = player_->GetWorldPosition();
+
+	const std::list<PlayerBullet*> playerBullets = player_->GetBullets();
+	const std::list<EnemyBullet*> enemyBullets = enemy_->GetBullets();
+
+	for (EnemyBullet* bullet : enemyBullets) {
+	
+		PosB = bullet->GetWorldPosition();
+
+		float length = sqrtf(
+		    (PosA.x - PosB.x) * (PosA.x - PosB.x) + (PosA.y - PosB.y) * (PosA.y - PosB.y) +
+		    (PosA.z - PosB.z) * (PosA.z - PosB.z));
+
+
+		if (length <= 2.0f) {
+			player_->OnCollision();
+			bullet->OnCollision();
+		}
+
+	}
+
+	PosA = enemy_->GetWorldPosition();
+
+	for (PlayerBullet* bullet : playerBullets) {
+
+		PosB = bullet->GetWorldPosition();
+
+		float length = sqrtf(
+		    (PosA.x - PosB.x) * (PosA.x - PosB.x) + (PosA.y - PosB.y) * (PosA.y - PosB.y) +
+		    (PosA.z - PosB.z) * (PosA.z - PosB.z));
+
+		if (length <= 2.0f) {
+			enemy_->OnCollision();
+			bullet->OnCollision();
+		}
+	}
+
+	for (EnemyBullet* enemyBullet : enemyBullets) {
+
+		PosA = enemyBullet->GetWorldPosition();
+
+		for (PlayerBullet* playerBullet : playerBullets) {
+
+			PosB = playerBullet->GetWorldPosition();
+
+			float length = sqrtf(
+			    (PosA.x - PosB.x) * (PosA.x - PosB.x) + (PosA.y - PosB.y) * (PosA.y - PosB.y) +
+			    (PosA.z - PosB.z) * (PosA.z - PosB.z));
+
+			if (length <= 2.0f) {
+				enemyBullet->OnCollision();
+				playerBullet->OnCollision();
+			}
+		}
+	}
+
 }

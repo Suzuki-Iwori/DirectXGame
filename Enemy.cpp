@@ -15,6 +15,15 @@ void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& vel
 }
 void Enemy::Update() {
 
+	enemyBullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead()) {
+			delete bullet;
+			return true;
+		} else {
+			return false;
+		}
+	});
+
 	(this->*MoveFanction[static_cast<size_t>(phase_)])();
 
 	for (EnemyBullet* bullet : enemyBullets_) {
@@ -81,6 +90,8 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 	}
 
 }
+
+void Enemy::OnCollision() {}
 
 Enemy::~Enemy() {
 	for (EnemyBullet* bullet : enemyBullets_) {
