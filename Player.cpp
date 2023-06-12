@@ -1,11 +1,13 @@
 #include "Player.h"
 
-void Player::Initialize(Model* model, uint32_t textureHandle) {
+void Player::Initialize(Model* model, uint32_t textureHandle, const Vector3& position) {
 	assert(model);
 
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
+
+	worldTransform_.translation_ = position;
 
 	input_ = Input::GetInstance();
 
@@ -90,7 +92,7 @@ void Player::Attack() {
 		velosity = TransformNormal(velosity, worldTransform_.matWorld_);
 
 		PlayerBullet* newBullet = new PlayerBullet;
-		newBullet->Initialize(model_, worldTransform_.translation_, velosity);
+		newBullet->Initialize(model_, GetWorldPosition(), velosity);
 
 		playerBullets_.push_back(newBullet);
 
@@ -98,6 +100,8 @@ void Player::Attack() {
 }
 
 void Player::OnCollision() {}
+
+void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ = parent; }
 
 Player::~Player() { 
 	for (PlayerBullet* bullet : playerBullets_) {
@@ -108,9 +112,9 @@ Player::~Player() {
 Vector3 Player::GetWorldPosition() {
 	Vector3 worldPosition{};
 
-	worldPosition.x = worldTransform_.translation_.x;
-	worldPosition.y = worldTransform_.translation_.y;
-	worldPosition.z = worldTransform_.translation_.z;
+	worldPosition.x = worldTransform_.matWorld_.m[3][0];
+	worldPosition.y = worldTransform_.matWorld_.m[3][1];
+	worldPosition.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPosition;
 }

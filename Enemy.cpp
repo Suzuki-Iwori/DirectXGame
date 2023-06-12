@@ -102,9 +102,9 @@ Enemy::~Enemy() {
 Vector3 Enemy::GetWorldPosition() {
 	Vector3 worldPosition{};
 
-	worldPosition.x = worldTransform_.translation_.x;
-	worldPosition.y = worldTransform_.translation_.y;
-	worldPosition.z = worldTransform_.translation_.z;
+	worldPosition.x = worldTransform_.matWorld_.m[3][0];
+	worldPosition.y = worldTransform_.matWorld_.m[3][1];
+	worldPosition.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPosition;
 }

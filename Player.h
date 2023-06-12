@@ -10,7 +10,7 @@
 
 class Player {
 public:
-	void Initialize(Model* model, uint32_t textureHandle);
+	void Initialize(Model* model, uint32_t textureHandle, const Vector3& position);
 
 	void Update();
 	void Draw(ViewProjection& viewProjection);
@@ -19,6 +19,8 @@ public:
 	void Attack();
 
 	void OnCollision();
+
+	void SetParent(const WorldTransform* parent);
 
 	~Player();
 

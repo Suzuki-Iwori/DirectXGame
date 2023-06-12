@@ -13,6 +13,7 @@ GameScene::~GameScene() {
 	delete debugCamera_;
 	delete skydome_;
 	delete skydomeModel_;
+	delete railCamera_;
 
 }
 
@@ -24,9 +25,14 @@ void GameScene::Initialize() {
 
 	textureHandle_ = TextureManager::Load("./Resources/white1x1.png");
 	model_ = Model::Create();
+
+	viewProjection_.farZ = 11.0f;
 	viewProjection_.Initialize();
+
+	Vector3 playerPosition = {0.0f, 0.0f, 20.0f};
+
 	player_ = new Player;
-	player_->Initialize(model_, textureHandle_);
+	player_->Initialize(model_, textureHandle_, playerPosition);
 
 	enemy_ = new Enemy;
 	enemy_->Initialize(model_, {20.0f, 0.0f, 180.0f}, {0.0f, 0.0f, -0.5f});
@@ -37,6 +43,10 @@ void GameScene::Initialize() {
 	skydome_ = new Skydome;
 	skydome_->Initialize(skydomeModel_);
 
+	railCamera_ = new RailCamera;
+	railCamera_->Initialize({0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
+	player_->SetParent(&railCamera_->GetWorldTransform());
+
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
@@ -44,6 +54,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_Q)) {
@@ -56,7 +67,11 @@ void GameScene::Update() {
 		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
 		viewProjection_.TransferMatrix();
 	} else {
-		viewProjection_.UpdateMatrix();
+
+		viewProjection_.matView = railCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
+		viewProjection_.TransferMatrix();
+
 	}
 
 	player_->Update();
@@ -67,6 +82,8 @@ void GameScene::Update() {
 
 	CheckAllCollisions();
 	skydome_->Update();
+
+	railCamera_->Update();
 
 }
 
