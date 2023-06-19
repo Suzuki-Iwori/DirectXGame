@@ -35,7 +35,7 @@ void GameScene::Initialize() {
 	viewProjection_.farZ = 11.0f;
 	viewProjection_.Initialize();
 
-	Vector3 playerPosition = {0.0f, -20.0f, 50.0f};
+	Vector3 playerPosition = {0.0f, 0.0f, 50.0f};
 
 	player_ = new Player;
 	player_->Initialize(model_, textureHandle_, playerPosition);
