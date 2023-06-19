@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "Player.h"
+#include "GameScene.h"
 
 void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& velosity) {
 	assert(model);
@@ -15,19 +16,10 @@ void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& vel
 }
 void Enemy::Update() {
 
-	enemyBullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
-		} else {
-			return false;
-		}
-	});
-
 	(this->*MoveFanction[static_cast<size_t>(phase_)])();
 
-	for (EnemyBullet* bullet : enemyBullets_) {
-		bullet->Update();
+	if (deathTimer_ < 0) {
+		isDead_ = true;
 	}
 
 	worldTransform_.UpdateMatrix();
@@ -51,6 +43,7 @@ void Enemy::ApproachingMove() {
 }
 void Enemy::LeavingMove() { 
 	worldTransform_.translation_ += {1.0f, 0.0f, 1.0f}; 
+	deathTimer_--;
 }
 
 void Enemy::ApproachingInitialize() {
@@ -62,7 +55,6 @@ void Enemy::ApproachingInitialize() {
 void Enemy::Fire() {
 		const float bulletSpeed = 0.2f;
 
-
 		Vector3 velosity =
 	        Normalize((player_->GetWorldPosition() - GetWorldPosition()));
 
@@ -73,7 +65,8 @@ void Enemy::Fire() {
 		EnemyBullet* newBullet = new EnemyBullet;
 		newBullet->Initialize(model_, worldTransform_.translation_, velosity);
 
-		enemyBullets_.push_back(newBullet);
+		gameScene_->AddEnemyBullet(newBullet);
+
 }
 
 void (Enemy::*Enemy::MoveFanction[])() = {
@@ -85,18 +78,11 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
-	for (EnemyBullet* bullet : enemyBullets_) {
-		bullet->Draw(viewProjection);
-	}
-
 }
 
-void Enemy::OnCollision() {}
+void Enemy::OnCollision() { isDead_ = true; }
 
 Enemy::~Enemy() {
-	for (EnemyBullet* bullet : enemyBullets_) {
-		delete bullet;
-	}
 }
 
 Vector3 Enemy::GetWorldPosition() {

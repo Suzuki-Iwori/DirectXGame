@@ -7,6 +7,7 @@
 #include <list>
 
 class Player;
+class GameScene;
 
 class Enemy {
 public:
@@ -23,13 +24,15 @@ public:
 	void Draw(const ViewProjection& viewProjection);
 
 	void SetPlayer(Player* player) { player_ = player; }
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
 	void OnCollision();
 
 	~Enemy();
 
 	Vector3 GetWorldPosition();
-	const std::list<EnemyBullet*>& GetBullets() { return enemyBullets_; };
+	bool IsDead() const { return isDead_; };
+	//const std::list<EnemyBullet*>& GetBullets() { return enemyBullets_; };
 
 private:
 
@@ -40,16 +43,20 @@ private:
 
 	static void (Enemy::*MoveFanction[])();
 
-	const int32_t kFireInterval = 60;
+	const int32_t kFireInterval = 30;
+
+	const int32_t kLifeCount = 60 * 20;
 
 	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	Vector3 velosity_{};
 	Phase phase_ = Phase::Approach;
-	std::list<EnemyBullet*> enemyBullets_;
 	int32_t fireCount = 0;
+	bool isDead_ = false;
+	int32_t deathTimer_ = kLifeCount;
 
 	Player* player_ = nullptr;
+	GameScene* gameScene_ = nullptr;
 
 };
