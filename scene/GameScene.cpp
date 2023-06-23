@@ -29,13 +29,15 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	textureHandle_ = TextureManager::Load("./Resources/white1x1.png");
+	textureHandle_ = TextureManager::Load("white1x1.png");
 	model_ = Model::Create();
 
 	viewProjection_.farZ = 11.0f;
 	viewProjection_.Initialize();
 
 	Vector3 playerPosition = {0.0f, 0.0f, 50.0f};
+
+	TextureManager::Load("target.png");
 
 	player_ = new Player;
 	player_->Initialize(model_, textureHandle_, playerPosition);
@@ -78,7 +80,7 @@ void GameScene::Update() {
 
 	}
 
-	player_->Update();
+	player_->Update(viewProjection_);
 
 	UpdateEnemyPopCommand();
 
@@ -166,6 +168,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+
+	player_->DrawUI();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

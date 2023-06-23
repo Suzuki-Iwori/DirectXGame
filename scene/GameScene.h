@@ -80,7 +80,7 @@ private: // メンバ変数
 	Model* model_ = nullptr;
 	ViewProjection viewProjection_;
 	Player* player_ = nullptr;
-	std::list <Enemy*> enemy_;
+	std::list<Enemy*> enemy_;
 	std::list<EnemyBullet*> enemyBullets_;
 	Skydome* skydome_ = nullptr;
 	Model* skydomeModel_ = nullptr;

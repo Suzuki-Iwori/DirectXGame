@@ -6,13 +6,14 @@
 #include <ImGuiManager.h>
 #include <cassert>
 #include "PlayerBullet.h"
+#include "Sprite.h"
 #include <list>
 
 class Player {
 public:
 	void Initialize(Model* model, uint32_t textureHandle, const Vector3& position);
 
-	void Update();
+	void Update(ViewProjection& viewProjection);
 	void Draw(ViewProjection& viewProjection);
 
 	void Rotate();
@@ -21,6 +22,9 @@ public:
 	void OnCollision();
 
 	void SetParent(const WorldTransform* parent);
+
+	void TransformUI(ViewProjection& viewProjection);
+	void DrawUI();
 
 	~Player();
 
@@ -33,4 +37,9 @@ private:
 	Model* model_ = nullptr;
 	Input* input_ = nullptr;
 	std::list<PlayerBullet*> playerBullets_;
+
+	WorldTransform worldTransform3DReticle_;
+
+	Sprite* sprite2DReticle_ = nullptr;
+
 };
