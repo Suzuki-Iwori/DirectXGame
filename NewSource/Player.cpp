@@ -35,18 +35,32 @@ void Player::Update(ViewProjection& viewProjection) {
 	const float kLimitX = 33.0f;
 	const float kLimitY = 17.0f;
 
-	if (input_->PushKey(DIK_LEFT)) {
+	//if (input_->PushKey(DIK_LEFT)) {
+	//	move.x -= kCharacterSpeed;
+	//}
+	//else if (input_->PushKey(DIK_RIGHT)) {
+	//	move.x += kCharacterSpeed;
+	//}
+
+	//if (input_->PushKey(DIK_UP)) {
+	//	move.y += kCharacterSpeed;
+	//} else if (input_->PushKey(DIK_DOWN)) {
+	//	move.y -= kCharacterSpeed;
+	//}
+
+	if (input_->PushKey(DIK_A)) {
 		move.x -= kCharacterSpeed;
 	}
-	else if (input_->PushKey(DIK_RIGHT)) {
+	 else if (input_->PushKey(DIK_D)) {
 		move.x += kCharacterSpeed;
 	}
 
-	if (input_->PushKey(DIK_UP)) {
+	 if (input_->PushKey(DIK_W)) {
 		move.y += kCharacterSpeed;
-	} else if (input_->PushKey(DIK_DOWN)) {
+	 } else if (input_->PushKey(DIK_S)) {
 		move.y -= kCharacterSpeed;
-	}
+	 }
+
 
 	Rotate();
 
@@ -84,13 +98,13 @@ void Player::Draw(ViewProjection& viewProjection) {
 }
 void Player::Rotate() {
 
-	const float kRotateSpeed = 0.02f;	
+	//const float kRotateSpeed = 0.02f;	
 
-	if (input_->PushKey(DIK_A)) {
-		worldTransform_.rotation_.y -= kRotateSpeed;
-	} else if (input_->PushKey(DIK_D)) {
-		worldTransform_.rotation_.y += kRotateSpeed;
-	}
+	//if (input_->PushKey(DIK_A)) {
+	//	worldTransform_.rotation_.y -= kRotateSpeed;
+	//} else if (input_->PushKey(DIK_D)) {
+	//	worldTransform_.rotation_.y += kRotateSpeed;
+	//}
 
 }
 
@@ -117,22 +131,37 @@ void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ =
 
 void Player::TransformUI(ViewProjection& viewProjection) {
 
-	const float kDistancePlayerTo3DReticle = 50.0f;
-	Vector3 offset = {0.0f, 0.0f, 1.0f};
-	offset = TransformNormal(offset, worldTransform_.matWorld_);
-	offset = Normalize(offset) * kDistancePlayerTo3DReticle;
-	worldTransform3DReticle_.translation_ = GetWorldPosition() + offset;
+	//const float kDistancePlayerTo3DReticle = 50.0f;
+	//Vector3 offset = {0.0f, 0.0f, 1.0f};
+	//offset = TransformNormal(offset, worldTransform_.matWorld_);
+	//offset = Normalize(offset) * kDistancePlayerTo3DReticle;
+	//worldTransform3DReticle_.translation_ = GetWorldPosition() + offset;
 
-	worldTransform3DReticle_.UpdateMatrix();
+	//worldTransform3DReticle_.UpdateMatrix();
 
-	
-	
-	
+	//Vector3 positionReticle = {
+	//    worldTransform3DReticle_.matWorld_.m[3][0], 
+	//	worldTransform3DReticle_.matWorld_.m[3][1],
+	//    worldTransform3DReticle_.matWorld_.m[3][2]};
 
-	Vector3 positionReticle = {
-	    worldTransform3DReticle_.matWorld_.m[3][0], 
-		worldTransform3DReticle_.matWorld_.m[3][1],
-	    worldTransform3DReticle_.matWorld_.m[3][2]};
+	//Matrix4x4 matViewport =
+	//    MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+
+	//Matrix4x4 matViewProjectionViewPort =
+	//    viewProjection.matView * viewProjection.matProjection * matViewport;
+
+	//positionReticle = Transform(positionReticle, matViewProjectionViewPort);
+
+	//sprite2DReticle_->SetPosition(Vector2(positionReticle.x,positionReticle.y));
+
+
+	POINT mousePosition{};
+	GetCursorPos(&mousePosition);
+
+	HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	ScreenToClient(hwnd, &mousePosition);
+
+	sprite2DReticle_->SetPosition({float(mousePosition.x), float(mousePosition.y)});
 
 	Matrix4x4 matViewport =
 	    MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
@@ -140,9 +169,21 @@ void Player::TransformUI(ViewProjection& viewProjection) {
 	Matrix4x4 matViewProjectionViewPort =
 	    viewProjection.matView * viewProjection.matProjection * matViewport;
 
-	positionReticle = Transform(positionReticle, matViewProjectionViewPort);
+	Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewPort);
 
-	sprite2DReticle_->SetPosition(Vector2(positionReticle.x,positionReticle.y));
+	Vector3 posNear = Vector3(float(mousePosition.x), float(mousePosition.y), 0.0f);
+	Vector3 posFar = Vector3(float(mousePosition.x), float(mousePosition.y), 1.0f);
+
+	posNear = Transform(posNear, matInverseVPV);
+	posFar = Transform(posFar, matInverseVPV);
+
+	Vector3 mouseDirection = posNear - posFar;
+	mouseDirection = Normalize(mouseDirection);
+
+	const float kDistanceObject = 100.0f;
+
+	worldTransform3DReticle_.translation_ = posNear - (mouseDirection * kDistanceObject);
+	worldTransform3DReticle_.UpdateMatrix();
 
 }
 
