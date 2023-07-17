@@ -8,6 +8,7 @@
 
 class Player;
 class GameScene;
+class TimeCall;
 
 class Enemy {
 public:
@@ -19,7 +20,10 @@ public:
 	void LeavingMove();
 
 	void ApproachingInitialize();
+	void LeavingInitialize();
 	void Fire();
+
+	void FireReset();
 
 	void Draw(const ViewProjection& viewProjection);
 
@@ -58,5 +62,7 @@ private:
 
 	Player* player_ = nullptr;
 	GameScene* gameScene_ = nullptr;
+
+	std::list<TimeCall*> timeCalls_;
 
 };

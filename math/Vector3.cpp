@@ -59,7 +59,11 @@ Vector3 Normalize(const Vector3& vector) {
 
 	float length = sqrtf((vector.x * vector.x) + (vector.y * vector.y) + (vector.z * vector.z));
 
-	return {(vector.x / length), (vector.y / length), (vector.z / length)};
+	if (length != 0.0f) {
+		return {(vector.x / length), (vector.y / length), (vector.z / length)};	
+	} else {
+		return {0.0f, 0.0f, 0.0f};
+	}
 }
 Vector3 Slarp(Vector3& velocity, const Vector3& toVelocity, const float& t) {
 

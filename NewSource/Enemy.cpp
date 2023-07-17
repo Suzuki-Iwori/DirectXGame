@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "Player.h"
 #include "GameScene.h"
+#include "TimeCall.h"
 
 void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& velosity) {
 	assert(model);
@@ -29,15 +30,22 @@ void Enemy::ApproachingMove() {
 	worldTransform_.translation_ += velosity_;
 	fireCount--;
 
-	if (fireCount <= 0) {
-		Fire();
+	timeCalls_.remove_if([](TimeCall* timeCall) {
+		if (timeCall->IsFinish()) {
+			delete timeCall;
+			return true;
+		} else {
+			return false;
+		}
+	});
 
-		fireCount = kFireInterval;
-
+	for (const auto& timeCall : timeCalls_) {
+		timeCall->Update();
 	}
 
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
+		LeavingInitialize();
 	}
 
 }
@@ -49,7 +57,12 @@ void Enemy::LeavingMove() {
 void Enemy::ApproachingInitialize() {
 
 	fireCount = kFireInterval;
+	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireReset, this), 60));
 
+}
+
+void Enemy::LeavingInitialize() { 
+	timeCalls_.clear();
 }
 
 void Enemy::Fire() {
@@ -69,6 +82,14 @@ void Enemy::Fire() {
 
 }
 
+void Enemy::FireReset() {
+
+	Fire();
+
+	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireReset,this),60));
+
+}
+
 void (Enemy::*Enemy::MoveFanction[])() = {
 	&Enemy::ApproachingMove, 
 	&Enemy::LeavingMove
@@ -83,6 +104,9 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 void Enemy::OnCollision() { isDead_ = true; }
 
 Enemy::~Enemy() {
+	for (const auto& timeCall : timeCalls_) {
+		delete timeCall;
+	}
 }
 
 Vector3 Enemy::GetWorldPosition() {
