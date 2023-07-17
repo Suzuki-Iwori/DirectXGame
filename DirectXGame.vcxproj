@@ -63,7 +63,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)2d;$(ProjectDir)3d;$(ProjectDir)audio;$(ProjectDir)base;$(ProjectDir)input;$(ProjectDir)scene;$(ProjectDir)math;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)2d;$(ProjectDir)3d;$(ProjectDir)audio;$(ProjectDir)base;$(ProjectDir)input;$(ProjectDir)scene;$(ProjectDir)math;$(ProjectDir)NewHeader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -107,10 +107,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="2d\ImGuiManager.cpp" />
+    <ClCompile Include="3d\WorldTransform.cpp" />
     <ClCompile Include="base\DirectXCommon.cpp" />
     <ClCompile Include="base\WinApp.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="math\Vector3.cpp" />
+    <ClCompile Include="NewSource\Enemy.cpp" />
+    <ClCompile Include="NewSource\EnemyBullet.cpp" />
+    <ClCompile Include="NewSource\Matrix4x4.cpp" />
+    <ClCompile Include="NewSource\Player.cpp" />
+    <ClCompile Include="NewSource\PlayerBullet.cpp" />
+    <ClCompile Include="NewSource\RailCamera.cpp" />
+    <ClCompile Include="NewSource\Skydome.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
+    <ClCompile Include="TimeCall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2d\ImGuiManager.h" />
@@ -140,7 +150,14 @@
     <ClInclude Include="math\Vector2.h" />
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
+    <ClInclude Include="NewHeader\Enemy.h" />
+    <ClInclude Include="NewHeader\EnemyBullet.h" />
+    <ClInclude Include="NewHeader\Player.h" />
+    <ClInclude Include="NewHeader\PlayerBullet.h" />
+    <ClInclude Include="NewHeader\RailCamera.h" />
+    <ClInclude Include="NewHeader\Skydome.h" />
     <ClInclude Include="scene\GameScene.h" />
+    <ClInclude Include="TimeCall.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">
