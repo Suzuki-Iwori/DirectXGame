@@ -9,7 +9,7 @@
 #include "Sprite.h"
 #include <list>
 
-class Player {
+class Player : public Collider {
 public:
 	void Initialize(Model* model, uint32_t textureHandle, const Vector3& position);
 
@@ -19,7 +19,7 @@ public:
 	void Rotate();
 	void Attack();
 
-	void OnCollision();
+	void OnCollision() override;
 
 	void SetParent(const WorldTransform* parent);
 
@@ -28,7 +28,7 @@ public:
 
 	~Player();
 
-	Vector3 GetWorldPosition();
+	Vector3 GetWorldPosition() override;
 	const std::list<PlayerBullet*>& GetBullets() { return playerBullets_; };
 
 private:

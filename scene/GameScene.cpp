@@ -177,65 +177,50 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
+void GameScene::CheckColliderPair(Collider* cA, Collider* cB) {
+	Vector3 posA = cA->GetWorldPosition();
+	Vector3 posB = cB->GetWorldPosition();
+
+	float length = sqrtf(
+	(posA.x - posB.x) * (posA.x - posB.x) + (posA.y - posB.y) * (posA.y - posB.y) +
+	(posA.z - posB.z) * (posA.z - posB.z));
+
+	if (length <= (cA->GetRadius() + cB->GetRadius())) {
+	
+		cA->OnCollision();
+		cB->OnCollision();
+	
+	}
+
+}
+
 void GameScene::CheckAllCollisions() {
 	Vector3 PosA{}, PosB{};
-
-	PosA = player_->GetWorldPosition();
 
 	const std::list<PlayerBullet*> playerBullets = player_->GetBullets();
 	const std::list<EnemyBullet*> enemyBullets = enemyBullets_;
 
 	for (const auto& bullet : enemyBullets) {
 	
-		PosB = bullet->GetWorldPosition();
-
-		float length = sqrtf(
-		    (PosA.x - PosB.x) * (PosA.x - PosB.x) + (PosA.y - PosB.y) * (PosA.y - PosB.y) +
-		    (PosA.z - PosB.z) * (PosA.z - PosB.z));
-
-
-		if (length <= 2.0f) {
-			player_->OnCollision();
-			bullet->OnCollision();
-		}
+		CheckColliderPair(player_, bullet);
 
 	}
 
 	for (const auto& enemy : enemy_) {
 
-		PosA = enemy->GetWorldPosition();
-
 		for (PlayerBullet* bullet : playerBullets) {
 
-			PosB = bullet->GetWorldPosition();
+			CheckColliderPair(enemy, bullet);
 
-			float length = sqrtf(
-			    (PosA.x - PosB.x) * (PosA.x - PosB.x) + (PosA.y - PosB.y) * (PosA.y - PosB.y) +
-			    (PosA.z - PosB.z) * (PosA.z - PosB.z));
-
-			if (length <= 2.0f) {
-				enemy->OnCollision();
-				bullet->OnCollision();
-			}
 		}
 	}
 
 	for (const auto& enemyBullet : enemyBullets) {
 
-		PosA = enemyBullet->GetWorldPosition();
-
 		for (PlayerBullet* playerBullet : playerBullets) {
 
-			PosB = playerBullet->GetWorldPosition();
+			CheckColliderPair(enemyBullet, playerBullet);
 
-			float length = sqrtf(
-			    (PosA.x - PosB.x) * (PosA.x - PosB.x) + (PosA.y - PosB.y) * (PosA.y - PosB.y) +
-			    (PosA.z - PosB.z) * (PosA.z - PosB.z));
-
-			if (length <= 2.0f) {
-				enemyBullet->OnCollision();
-				playerBullet->OnCollision();
-			}
 		}
 	}
 

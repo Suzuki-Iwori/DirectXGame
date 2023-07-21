@@ -10,7 +10,7 @@ class Player;
 class GameScene;
 class TimeCall;
 
-class Enemy {
+class Enemy : public Collider {
 public:
 	void Initialize(Model* model, const Vector3& position, const Vector3& velosity);
 
@@ -30,11 +30,11 @@ public:
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
-	void OnCollision();
+	void OnCollision() override;
 
 	~Enemy();
 
-	Vector3 GetWorldPosition();
+	Vector3 GetWorldPosition() override;
 	bool IsDead() const { return isDead_; };
 	//const std::list<EnemyBullet*>& GetBullets() { return enemyBullets_; };
 

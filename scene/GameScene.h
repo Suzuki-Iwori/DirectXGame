@@ -8,12 +8,12 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include <DebugCamera.h>
 #include "Player.h"
 #include "Enemy.h"
 #include "Skydome.h"
 #include "RailCamera.h"
 #include <sstream>
+#include <DebugCamera.h>
 
 /// <summary>
 /// ゲームシーン
@@ -72,6 +72,14 @@ public: // メンバ関数
 	void UpdateEnemyPopCommand();
 
 private: // メンバ変数
+
+
+	/// <summary>
+	/// 2つのコライダーの接触判定
+	/// </summary>
+	void CheckColliderPair(Collider* cA, Collider* cB);
+
+
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
