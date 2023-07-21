@@ -119,8 +119,8 @@
     <ClCompile Include="NewSource\PlayerBullet.cpp" />
     <ClCompile Include="NewSource\RailCamera.cpp" />
     <ClCompile Include="NewSource\Skydome.cpp" />
+    <ClCompile Include="NewSource\TimeCall.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
-    <ClCompile Include="TimeCall.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="2d\ImGuiManager.h" />
@@ -156,8 +156,8 @@
     <ClInclude Include="NewHeader\PlayerBullet.h" />
     <ClInclude Include="NewHeader\RailCamera.h" />
     <ClInclude Include="NewHeader\Skydome.h" />
+    <ClInclude Include="NewHeader\TimeCall.h" />
     <ClInclude Include="scene\GameScene.h" />
-    <ClInclude Include="TimeCall.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\TerrainPS.hlsl">

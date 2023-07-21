@@ -102,7 +102,7 @@
     <ClCompile Include="NewSource\Skydome.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
-    <ClCompile Include="TimeCall.cpp">
+    <ClCompile Include="NewSource\TimeCall.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
   </ItemGroup>
@@ -209,7 +209,7 @@
     <ClInclude Include="NewHeader\Skydome.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
-    <ClInclude Include="TimeCall.h">
+    <ClInclude Include="NewHeader\TimeCall.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
   </ItemGroup>
