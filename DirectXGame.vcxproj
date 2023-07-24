@@ -114,6 +114,7 @@
     <ClCompile Include="base\WinApp.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math\Vector3.cpp" />
+    <ClCompile Include="NewSource\Collider.cpp" />
     <ClCompile Include="NewSource\Enemy.cpp" />
     <ClCompile Include="NewSource\EnemyBullet.cpp" />
     <ClCompile Include="NewSource\Matrix4x4.cpp" />
