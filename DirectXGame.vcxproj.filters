@@ -218,6 +218,9 @@
     <ClInclude Include="NewHeader\Collider.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
+    <ClInclude Include="NewHeader\ColliderConfig.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\SpritePS.hlsl">
