@@ -93,6 +93,8 @@ private: // メンバ変数
 	Skydome* skydome_ = nullptr;
 	Model* skydomeModel_ = nullptr;
 
+	Model* enemyModel_ = nullptr;
+
 	RailCamera* railCamera_ = nullptr;
 
 	bool isDebugCameraActive_ = false;

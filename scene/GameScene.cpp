@@ -44,6 +44,8 @@ void GameScene::Initialize() {
 
 	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
 
+	enemyModel_ = Model::CreateFromOBJ("enemii", true);
+
 	skydome_ = new Skydome;
 	skydome_->Initialize(skydomeModel_);
 
@@ -235,7 +237,7 @@ void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
 void GameScene::AddEnemy(const Vector3& position) {
 
 	Enemy* newEnemy = new Enemy;
-	newEnemy->Initialize(model_, position, {0.0f, 0.0f, -0.5f});
+	newEnemy->Initialize(enemyModel_, position, {0.0f, 0.0f, -0.5f});
 	newEnemy->SetPlayer(player_);
 	newEnemy->SetGameScene(this);
 

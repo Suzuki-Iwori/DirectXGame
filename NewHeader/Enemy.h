@@ -51,7 +51,6 @@ private:
 
 	const int32_t kLifeCount = 60 * 20;
 
-	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	Vector3 velosity_{};

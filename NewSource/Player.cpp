@@ -131,37 +131,18 @@ void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ =
 
 void Player::TransformUI(ViewProjection& viewProjection) {
 
-	//const float kDistancePlayerTo3DReticle = 50.0f;
-	//Vector3 offset = {0.0f, 0.0f, 1.0f};
-	//offset = TransformNormal(offset, worldTransform_.matWorld_);
-	//offset = Normalize(offset) * kDistancePlayerTo3DReticle;
-	//worldTransform3DReticle_.translation_ = GetWorldPosition() + offset;
+	const float kDistancePlayerTo3DReticle = 50.0f;
+	Vector3 offset = {0.0f, 0.0f, 1.0f};
+	offset = TransformNormal(offset, worldTransform_.matWorld_);
+	offset = Normalize(offset) * kDistancePlayerTo3DReticle;
+	worldTransform3DReticle_.translation_ = GetWorldPosition() + offset;
 
-	//worldTransform3DReticle_.UpdateMatrix();
+	worldTransform3DReticle_.UpdateMatrix();
 
-	//Vector3 positionReticle = {
-	//    worldTransform3DReticle_.matWorld_.m[3][0], 
-	//	worldTransform3DReticle_.matWorld_.m[3][1],
-	//    worldTransform3DReticle_.matWorld_.m[3][2]};
-
-	//Matrix4x4 matViewport =
-	//    MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
-
-	//Matrix4x4 matViewProjectionViewPort =
-	//    viewProjection.matView * viewProjection.matProjection * matViewport;
-
-	//positionReticle = Transform(positionReticle, matViewProjectionViewPort);
-
-	//sprite2DReticle_->SetPosition(Vector2(positionReticle.x,positionReticle.y));
-
-
-	POINT mousePosition{};
-	GetCursorPos(&mousePosition);
-
-	HWND hwnd = WinApp::GetInstance()->GetHwnd();
-	ScreenToClient(hwnd, &mousePosition);
-
-	sprite2DReticle_->SetPosition({float(mousePosition.x), float(mousePosition.y)});
+	Vector3 positionReticle = {
+	    worldTransform3DReticle_.matWorld_.m[3][0], 
+		worldTransform3DReticle_.matWorld_.m[3][1],
+	    worldTransform3DReticle_.matWorld_.m[3][2]};
 
 	Matrix4x4 matViewport =
 	    MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
@@ -169,21 +150,40 @@ void Player::TransformUI(ViewProjection& viewProjection) {
 	Matrix4x4 matViewProjectionViewPort =
 	    viewProjection.matView * viewProjection.matProjection * matViewport;
 
-	Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewPort);
+	positionReticle = Transform(positionReticle, matViewProjectionViewPort);
 
-	Vector3 posNear = Vector3(float(mousePosition.x), float(mousePosition.y), 0.0f);
-	Vector3 posFar = Vector3(float(mousePosition.x), float(mousePosition.y), 1.0f);
+	sprite2DReticle_->SetPosition(Vector2(positionReticle.x,positionReticle.y));
 
-	posNear = Transform(posNear, matInverseVPV);
-	posFar = Transform(posFar, matInverseVPV);
 
-	Vector3 mouseDirection = posNear - posFar;
-	mouseDirection = Normalize(mouseDirection);
+	//POINT mousePosition{};
+	//GetCursorPos(&mousePosition);
 
-	const float kDistanceObject = 100.0f;
+	//HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	//ScreenToClient(hwnd, &mousePosition);
 
-	worldTransform3DReticle_.translation_ = posNear - (mouseDirection * kDistanceObject);
-	worldTransform3DReticle_.UpdateMatrix();
+	//sprite2DReticle_->SetPosition({float(mousePosition.x), float(mousePosition.y)});
+
+	//Matrix4x4 matViewport =
+	//    MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+
+	//Matrix4x4 matViewProjectionViewPort =
+	//    viewProjection.matView * viewProjection.matProjection * matViewport;
+
+	//Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewPort);
+
+	//Vector3 posNear = Vector3(float(mousePosition.x), float(mousePosition.y), 0.0f);
+	//Vector3 posFar = Vector3(float(mousePosition.x), float(mousePosition.y), 1.0f);
+
+	//posNear = Transform(posNear, matInverseVPV);
+	//posFar = Transform(posFar, matInverseVPV);
+
+	//Vector3 mouseDirection = posNear - posFar;
+	//mouseDirection = Normalize(mouseDirection);
+
+	//const float kDistanceObject = 100.0f;
+
+	//worldTransform3DReticle_.translation_ = posNear - (mouseDirection * kDistanceObject);
+	//worldTransform3DReticle_.UpdateMatrix();
 
 }
 

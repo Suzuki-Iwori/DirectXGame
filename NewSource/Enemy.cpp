@@ -7,7 +7,6 @@ void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& vel
 	assert(model);
 
 	model_ = model;
-	textureHandle_ = TextureManager::Load("./Resources/cube/cube.jpg");
 	worldTransform_.Initialize();
 	velosity_ = velosity;
 
@@ -97,7 +96,7 @@ void (Enemy::*Enemy::MoveFanction[])() = {
 
 void Enemy::Draw(const ViewProjection& viewProjection) {
 
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	model_->Draw(worldTransform_, viewProjection);
 
 }
 
