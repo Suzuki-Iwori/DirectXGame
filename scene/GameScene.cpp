@@ -10,6 +10,7 @@ GameScene::~GameScene() {
 	delete model_;
 	delete player_;
 	delete debugCamera_;
+	delete sprite_;
 
 }
 
@@ -20,10 +21,14 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 
 	textureHandle_ = TextureManager::Load("./Resources/white1x1.png");
+	textureSpriteHandle_ = TextureManager::Load("./Resources/uvChecker.png");
 	model_ = Model::Create();
 	viewProjection_.Initialize();
 	player_ = new Player;
 	player_->Initialize(model_, textureHandle_);
+
+	sprite_ = Sprite::Create(textureSpriteHandle_, {0, 0});
+
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
@@ -90,6 +95,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+
+	sprite_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
