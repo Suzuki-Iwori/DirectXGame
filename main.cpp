@@ -6,11 +6,18 @@
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include "WinApp.h"
+#include <time.h>
+#include <stdlib.h>
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	WinApp* win = nullptr;
 	DirectXCommon* dxCommon = nullptr;
+
+	//乱数生成用
+	time_t currentTime = time(nullptr);
+	srand((unsigned int)currentTime);
+	
 	// 汎用機能
 	Input* input = nullptr;
 	Audio* audio = nullptr;

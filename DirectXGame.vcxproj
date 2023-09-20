@@ -118,6 +118,7 @@
     <ClCompile Include="NewSource\Enemy.cpp" />
     <ClCompile Include="NewSource\EnemyBullet.cpp" />
     <ClCompile Include="NewSource\Matrix4x4.cpp" />
+    <ClCompile Include="NewSource\Particle.cpp" />
     <ClCompile Include="NewSource\Player.cpp" />
     <ClCompile Include="NewSource\PlayerBullet.cpp" />
     <ClCompile Include="NewSource\RailCamera.cpp" />
@@ -157,9 +158,11 @@
     <ClInclude Include="NewHeader\ColliderConfig.h" />
     <ClInclude Include="NewHeader\Enemy.h" />
     <ClInclude Include="NewHeader\EnemyBullet.h" />
+    <ClInclude Include="NewHeader\Particle.h" />
     <ClInclude Include="NewHeader\Player.h" />
     <ClInclude Include="NewHeader\PlayerBullet.h" />
     <ClInclude Include="NewHeader\RailCamera.h" />
+    <ClInclude Include="NewHeader\Random.h" />
     <ClInclude Include="NewHeader\Skydome.h" />
     <ClInclude Include="NewHeader\TimeCall.h" />
     <ClInclude Include="scene\GameScene.h" />

@@ -86,7 +86,7 @@ void Enemy::FireReset() {
 
 	Fire();
 
-	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireReset,this),75));
+	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireReset,this),80));
 
 }
 

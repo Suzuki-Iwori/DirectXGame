@@ -15,6 +15,7 @@ GameScene::~GameScene() {
 	delete skydomeModel_;
 	delete playerBulletModel_;
 	delete enemyBulletModel_;
+	delete particleModel_;
 	delete railCamera_;
 
 	for (uint32_t i = 0; i < 3; i++) {
@@ -27,11 +28,16 @@ GameScene::~GameScene() {
 		}
 	}
 
+	delete backgroundImage_;
+
 	for (const auto& enemy : enemy_) {
 		delete enemy;
 	}
 	for (const auto& bullet : enemyBullets_) {
 		delete bullet;
+	}
+	for (const auto& particle : particles_) {
+		delete particle;
 	}
 }
 
@@ -49,13 +55,16 @@ void GameScene::Initialize() {
 	score = 0u;
 	resultFrame = 0u;
 	scoreAlpha = 1.0f;
+	backgroundAlpha = 0.0f;
 	resultDisplay = false;
+
 
 	//モデル初期化
 	playeModel_ = Model::CreateFromOBJ("flyPlayer", true);
 	playerBulletModel_ = Model::CreateFromOBJ("PBullet", true);
 	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
 	enemyModel_ = Model::CreateFromOBJ("enemii", true);
+	particleModel_ = Model::CreateFromOBJ("cube", true);
 
 	//スプライト初期化
 	TextureManager::Load("target.png");
@@ -83,6 +92,9 @@ void GameScene::Initialize() {
 			    Sprite::Create(numberTexture_[i], {(10.0f + j * 58.0f), 84.0f}, {1, 1, 1, 1}, {0.0f, 0.0f});
 		}
 	}
+
+	backgroundTexture_ = TextureManager::Load("Background.png");
+	backgroundImage_ = Sprite::Create(backgroundTexture_, {0.0f, 0.0f}, {1, 1, 1, 0}, {0.0f, 0.0f});
 
 	//オブジェクト初期化
 	player_ = new Player;
@@ -132,36 +144,7 @@ void GameScene::Update() {
 
 		UpdateEnemyPopCommand();
 
-		for (const auto& enemy : enemy_) {
-			enemy->Update();
-		}
-
-		enemy_.remove_if([](Enemy* enemy) {
-			if (enemy->IsDead()) {
-				delete enemy;
-				return true;
-			} else {
-				return false;
-			}
-		});
-
-		for (const auto& bullet : enemyBullets_) {
-			bullet->Update();
-
-			if (bullet->IsDestroyed()) {
-				score++;
-			}
-
-		}
-
-		enemyBullets_.remove_if([](EnemyBullet* bullet) {
-			if (bullet->IsDead() || bullet->IsDestroyed()) {
-				delete bullet;
-				return true;
-			} else {
-				return false;
-			}
-		});
+		UpdateList();
 
 		skydome_->Update();
 		railCamera_->Update();
@@ -175,9 +158,23 @@ void GameScene::Update() {
 		}
 
 		if (!resultDisplay) {
-			scoreAlpha -= 0.02f;	
+			scoreAlpha -= 0.02f;
 		} else {
 			scoreAlpha += 0.02f;
+			backgroundAlpha += 0.015f;
+		}
+		if (scoreAlpha > 1.0f) {
+			scoreAlpha = 1.0f;
+		}
+		if (scoreAlpha < 0.0f) {
+			scoreAlpha = 0.0f;
+		}
+
+		if (backgroundAlpha > 0.75f) {
+			backgroundAlpha = 0.75f;
+		}
+		if (backgroundAlpha < 0.0f) {
+			backgroundAlpha = 0.0f;
 		}
 
 		for (uint32_t i = 0; i < 10; i++) {
@@ -194,6 +191,8 @@ void GameScene::Update() {
 				}
 			}
 		}
+
+		backgroundImage_->SetColor({1.0f, 1.0f, 1.0f, backgroundAlpha});
 
 	}
 
@@ -242,6 +241,10 @@ void GameScene::Draw() {
 		bullet->Draw(viewProjection_);
 	}
 
+	for (const auto& particle : particles_) {
+		particle->Draw(viewProjection_);
+	}
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
@@ -260,6 +263,8 @@ void GameScene::Draw() {
 		playerLifeImage_[i]->Draw();
 	}
 
+	backgroundImage_->Draw();
+
 	for (uint32_t i = 0; i < 10; i++) {
 		for (uint32_t j = 0; j < 3; j++) {
 
@@ -271,6 +276,7 @@ void GameScene::Draw() {
 
 		}
 	}
+
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -284,6 +290,18 @@ void GameScene::ConvertScore() {
 	scoreDigit[1] = (score % 100u) / 10;
 	scoreDigit[2] = (score % 100u) % 10;
 
+}
+
+void GameScene::AddParticle(const uint32_t& num, const Vector3& position) {
+
+	for (uint32_t i = 0; i < num; i++) {
+
+		Particle* newParticle = new Particle;
+		newParticle->Initialize(particleModel_, position);
+
+		particles_.push_back(newParticle);
+
+	}
 
 }
 
@@ -350,6 +368,54 @@ void GameScene::AddEnemy(const Vector3& position) {
 	newEnemy->SetGameScene(this);
 
 	enemy_.push_back(newEnemy);
+
+}
+
+void GameScene::UpdateList() {
+
+		for (const auto& enemy : enemy_) {
+		enemy->Update();
+	}
+
+	enemy_.remove_if([](Enemy* enemy) {
+		if (enemy->IsDead()) {
+			delete enemy;
+			return true;
+		} else {
+			return false;
+		}
+	});
+
+	for (const auto& bullet : enemyBullets_) {
+		bullet->Update();
+
+		if (bullet->IsDestroyed()) {
+			AddParticle(3, bullet->GetWorldPosition());
+			score++;
+		}
+	}
+
+	enemyBullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->IsDead() || bullet->IsDestroyed()) {
+			delete bullet;
+			return true;
+		} else {
+			return false;
+		}
+	});
+
+	for (const auto& particle : particles_) {
+		particle->Update();
+	}
+
+	particles_.remove_if([](Particle* particle) {
+		if (particle->IsDead()) {
+			delete particle;
+			return true;
+		} else {
+			return false;
+		}
+	});
 
 }
 
