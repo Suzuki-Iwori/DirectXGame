@@ -12,7 +12,7 @@ class TimeCall;
 
 class Enemy : public Collider {
 public:
-	void Initialize(Model* model, const Vector3& position, const Vector3& velosity);
+	void Initialize(Model* model, Model* bulletModel, const Vector3& position, const Vector3& velosity);
 
 	void Update();
 
@@ -58,6 +58,8 @@ private:
 	int32_t fireCount = 0;
 	bool isDead_ = false;
 	int32_t deathTimer_ = kLifeCount;
+
+	Model* bulletModel_ = nullptr;
 
 	Player* player_ = nullptr;
 	GameScene* gameScene_ = nullptr;

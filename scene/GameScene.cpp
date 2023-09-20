@@ -8,12 +8,24 @@ GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 
-	delete model_;
 	delete player_;
+	delete playeModel_;
 	delete debugCamera_;
 	delete skydome_;
 	delete skydomeModel_;
+	delete playerBulletModel_;
+	delete enemyBulletModel_;
 	delete railCamera_;
+
+	for (uint32_t i = 0; i < 3; i++) {
+		delete playerLifeImage_[i];
+	}
+
+	for (uint32_t i = 0; i < 10; i++) {
+		for (uint32_t j = 0; j < 3; j++) {
+			delete numberImage_[i][j];
+		}
+	}
 
 	for (const auto& enemy : enemy_) {
 		delete enemy;
@@ -25,26 +37,56 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
+	//システム初期化
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
-
-	textureHandle_ = TextureManager::Load("white1x1.png");
-	model_ = Model::Create();
-
 	viewProjection_.farZ = 11.0f;
 	viewProjection_.Initialize();
 
 	Vector3 playerPosition = {0.0f, 0.0f, 50.0f};
 
+	score = 0u;
+	resultFrame = 0u;
+	scoreAlpha = 1.0f;
+	resultDisplay = false;
+
+	//モデル初期化
+	playeModel_ = Model::CreateFromOBJ("flyPlayer", true);
+	playerBulletModel_ = Model::CreateFromOBJ("PBullet", true);
+	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
+	enemyModel_ = Model::CreateFromOBJ("enemii", true);
+
+	//スプライト初期化
 	TextureManager::Load("target.png");
 
+	lifeTexture_ = TextureManager::Load("heart.png");
+	for (uint32_t i = 0; i < 4; i++) {
+		playerLifeImage_[i] = 
+			Sprite::Create(lifeTexture_, {(10.0f + i * 74.0f), 10.0f}, {1, 1, 1, 1}, {0.0f, 0.0f});
+	}
+
+	numberTexture_[0] = TextureManager::Load("number/0.png");
+	numberTexture_[1] = TextureManager::Load("number/1.png");
+	numberTexture_[2] = TextureManager::Load("number/2.png");
+	numberTexture_[3] = TextureManager::Load("number/3.png");
+	numberTexture_[4] = TextureManager::Load("number/4.png");
+	numberTexture_[5] = TextureManager::Load("number/5.png");
+	numberTexture_[6] = TextureManager::Load("number/6.png");
+	numberTexture_[7] = TextureManager::Load("number/7.png");
+	numberTexture_[8] = TextureManager::Load("number/8.png");
+	numberTexture_[9] = TextureManager::Load("number/9.png");
+
+	for (uint32_t i = 0; i < 10; i++) {
+		for (uint32_t j = 0; j < 3; j++) {
+			numberImage_[i][j] =
+			    Sprite::Create(numberTexture_[i], {(10.0f + j * 58.0f), 84.0f}, {1, 1, 1, 1}, {0.0f, 0.0f});
+		}
+	}
+
+	//オブジェクト初期化
 	player_ = new Player;
-	player_->Initialize(model_, textureHandle_, playerPosition);
-
-	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
-
-	enemyModel_ = Model::CreateFromOBJ("enemii", true);
+	player_->Initialize(playeModel_, playerBulletModel_, playerPosition);
 
 	skydome_ = new Skydome;
 	skydome_->Initialize(skydomeModel_);
@@ -57,66 +99,107 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 
+	enemyBulletModel_ = Model::CreateFromOBJ("enemyBullet", true);
 	LoadEnemyPopCommand();
 
 }
 
 void GameScene::Update() {
 
+	if (!isGameEnd) {
+#ifdef _DEBUG
+		if (input_->TriggerKey(DIK_Q)) {
+			isDebugCameraActive_ = !isDebugCameraActive_;
+		}
+#endif
+		if (isDebugCameraActive_) {
+			debugCamera_->Update();
+			viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+			viewProjection_.TransferMatrix();
+		} else {
 
-	#ifdef _DEBUG
-	if (input_->TriggerKey(DIK_Q)) {
-		isDebugCameraActive_ = !isDebugCameraActive_;
-	}
-	#endif
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-		viewProjection_.TransferMatrix();
+			viewProjection_.matView = railCamera_->GetViewProjection().matView;
+			viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
+			viewProjection_.TransferMatrix();
+		}
+
+		player_->Update(viewProjection_);
+
+		if (!player_->GetPlayerLive()) {
+			isGameEnd = true;
+		}
+
+		UpdateEnemyPopCommand();
+
+		for (const auto& enemy : enemy_) {
+			enemy->Update();
+		}
+
+		enemy_.remove_if([](Enemy* enemy) {
+			if (enemy->IsDead()) {
+				delete enemy;
+				return true;
+			} else {
+				return false;
+			}
+		});
+
+		for (const auto& bullet : enemyBullets_) {
+			bullet->Update();
+
+			if (bullet->IsDestroyed()) {
+				score++;
+			}
+
+		}
+
+		enemyBullets_.remove_if([](EnemyBullet* bullet) {
+			if (bullet->IsDead() || bullet->IsDestroyed()) {
+				delete bullet;
+				return true;
+			} else {
+				return false;
+			}
+		});
+
+		skydome_->Update();
+		railCamera_->Update();
+
+
 	} else {
+		resultFrame++;
 
-		viewProjection_.matView = railCamera_->GetViewProjection().matView;
-		viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
-		viewProjection_.TransferMatrix();
-
-	}
-
-	player_->Update(viewProjection_);
-
-	UpdateEnemyPopCommand();
-
-	for (const auto& enemy : enemy_) {
-		enemy->Update();
-	}
-
-	enemy_.remove_if([](Enemy* enemy) {
-		if (enemy->IsDead()) {
-			delete enemy;
-			return true;
-		} else {
-			return false;
+		if (resultFrame >= 50) {
+			resultDisplay = true;
 		}
-	});
 
-	for (const auto& bullet : enemyBullets_) {
-		bullet->Update();
-	}
-
-	enemyBullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->IsDead()) {
-			delete bullet;
-			return true;
+		if (!resultDisplay) {
+			scoreAlpha -= 0.02f;	
 		} else {
-			return false;
+			scoreAlpha += 0.02f;
 		}
-	});
 
+		for (uint32_t i = 0; i < 10; i++) {
+			for (uint32_t j = 0; j < 3; j++) {
+
+				if (scoreDigit[j] == i) {
+
+					numberImage_[i][j]->SetColor({1.0f, 1.0f, 1.0f, scoreAlpha});
+
+					if (resultDisplay) {
+						numberImage_[i][j]->SetPosition({568.0f + j * 58.0f, 328.0f});
+					}
+
+				}
+			}
+		}
+
+	}
 
 	CheckAllCollisions();
 
-	skydome_->Update();
-	railCamera_->Update();
+	ConvertScore();
 
 }
 
@@ -173,10 +256,35 @@ void GameScene::Draw() {
 
 	player_->DrawUI();
 
+	for (uint32_t i = 0; i < player_->GetPlayerLife(); i++) {
+		playerLifeImage_[i]->Draw();
+	}
+
+	for (uint32_t i = 0; i < 10; i++) {
+		for (uint32_t j = 0; j < 3; j++) {
+
+			if (scoreDigit[j] == i) {
+
+				numberImage_[i][j]->Draw();
+
+			}
+
+		}
+	}
+
 	// スプライト描画後処理
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::ConvertScore() {
+
+	scoreDigit[0] = score / 100u;
+	scoreDigit[1] = (score % 100u) / 10;
+	scoreDigit[2] = (score % 100u) % 10;
+
+
 }
 
 void GameScene::CheckColliderPair(Collider* cA, Collider* cB) {
@@ -237,7 +345,7 @@ void GameScene::AddEnemyBullet(EnemyBullet* enemyBullet) {
 void GameScene::AddEnemy(const Vector3& position) {
 
 	Enemy* newEnemy = new Enemy;
-	newEnemy->Initialize(enemyModel_, position, {0.0f, 0.0f, -0.5f});
+	newEnemy->Initialize(enemyModel_, enemyBulletModel_, position, {0.0f, 0.0f, -0.5f});
 	newEnemy->SetPlayer(player_);
 	newEnemy->SetGameScene(this);
 
@@ -293,8 +401,7 @@ void GameScene::UpdateEnemyPopCommand() {
 
 			AddEnemy({x, y, z});
 
-		}
-		else if (word.find("WAIT") == 0) {
+		} else if (word.find("WAIT") == 0) {
 			getline(line_stream, word, ',');
 
 			int32_t waitTime = atoi(word.c_str());
@@ -303,6 +410,8 @@ void GameScene::UpdateEnemyPopCommand() {
 			waitingCommandTimer = waitTime;
 
 			break;
+		} else if (word.find("END") == 0) {
+			isGameEnd = true;
 		}
 	}
 

@@ -3,10 +3,11 @@
 #include "GameScene.h"
 #include "TimeCall.h"
 
-void Enemy::Initialize(Model* model, const Vector3& position, const Vector3& velosity) {
+void Enemy::Initialize(Model* model, Model* bulletModel, const Vector3& position, const Vector3& velosity) {
 	assert(model);
 
 	model_ = model;
+	bulletModel_ = bulletModel;
 	worldTransform_.Initialize();
 	velosity_ = velosity;
 
@@ -42,7 +43,7 @@ void Enemy::ApproachingMove() {
 		timeCall->Update();
 	}
 
-	if (worldTransform_.translation_.z < 0.0f) {
+	if (worldTransform_.translation_.z < player_->GetWorldPosition().z - 20.0f) {
 		phase_ = Phase::Leave;
 		LeavingInitialize();
 	}
@@ -75,7 +76,7 @@ void Enemy::Fire() {
 		velosity = TransformNormal(velosity, worldTransform_.matWorld_);
 
 		EnemyBullet* newBullet = new EnemyBullet;
-		newBullet->Initialize(model_, worldTransform_.translation_, velosity);
+	    newBullet->Initialize(bulletModel_, worldTransform_.translation_, velosity);
 
 		gameScene_->AddEnemyBullet(newBullet);
 
@@ -85,7 +86,7 @@ void Enemy::FireReset() {
 
 	Fire();
 
-	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireReset,this),60));
+	timeCalls_.push_back(new TimeCall(std::bind(&Enemy::FireReset,this),75));
 
 }
 

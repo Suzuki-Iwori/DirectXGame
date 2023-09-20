@@ -19,7 +19,7 @@ public:
 	Vector3 GetWorldPosition() override;
 
 private:
-	const int32_t kLifeCount = 60 * 5;
+	const int32_t kLifeCount = 60 * 1;
 	uint32_t textureHandle_ = 0u;
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;

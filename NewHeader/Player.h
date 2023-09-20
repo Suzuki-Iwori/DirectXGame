@@ -11,13 +11,14 @@
 
 class Player : public Collider {
 public:
-	void Initialize(Model* model, uint32_t textureHandle, const Vector3& position);
+	void Initialize(Model* model, Model* bulletModel, const Vector3& position);
 
 	void Update(ViewProjection& viewProjection);
 	void Draw(ViewProjection& viewProjection);
 
-	void Rotate();
+	void Move();
 	void Attack();
+	void SetShot();
 
 	void OnCollision() override;
 
@@ -30,16 +31,24 @@ public:
 
 	Vector3 GetWorldPosition() override;
 	const std::list<PlayerBullet*>& GetBullets() { return playerBullets_; };
+	uint32_t GetPlayerLife() { return playerLife; }
+	bool GetPlayerLive() { return isPlayerLive; }
 
 private:
 	uint32_t textureHandle_ = 0u;
+	uint32_t bulletCoolTime = 0;
+
+	uint32_t playerLife = 4;
+	bool isPlayerLive = true;
+
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	Input* input_ = nullptr;
+
+	Model* bulletModel_ = nullptr;
 	std::list<PlayerBullet*> playerBullets_;
 
 	WorldTransform worldTransform3DReticle_;
-
 	Sprite* sprite2DReticle_ = nullptr;
 
 };

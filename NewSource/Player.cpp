@@ -1,14 +1,14 @@
 ﻿#include "Player.h"
 
-void Player::Initialize(Model* model, uint32_t textureHandle, const Vector3& position) {
+void Player::Initialize(Model* model, Model* bulletModel, const Vector3& position) {
 	assert(model);
 
 	model_ = model;
-	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
 
 	worldTransform_.translation_ = position;
 
+	bulletModel_ = bulletModel;
 
 	worldTransform3DReticle_.Initialize();
 
@@ -29,40 +29,59 @@ void Player::Update(ViewProjection& viewProjection) {
 		}
 	});
 
+	Move();
+
+	TransformUI(viewProjection);
+
+	Attack();
+
+	if (playerLife <= 0) {
+		isPlayerLive = false;
+	}
+
+	for (PlayerBullet* bullet : playerBullets_) {
+		bullet->Update();
+	}
+
+}
+void Player::Draw(ViewProjection& viewProjection) {
+
+	model_->Draw(worldTransform_, viewProjection);
+
+	//model_->Draw(worldTransform3DReticle_, viewProjection, textureHandle_);
+
+	for (PlayerBullet* bullet : playerBullets_) {
+		bullet->Draw(viewProjection);
+	}
+
+}
+
+void Player::Move() {
+
+	XINPUT_STATE joyState{};
+
 	Vector3 move = {0, 0, 0};
 	const float kCharacterSpeed = 0.2f;
+
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
+		move.y += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
+	}
 
 	const float kLimitX = 33.0f;
 	const float kLimitY = 17.0f;
 
-	//if (input_->PushKey(DIK_LEFT)) {
-	//	move.x -= kCharacterSpeed;
-	//}
-	//else if (input_->PushKey(DIK_RIGHT)) {
-	//	move.x += kCharacterSpeed;
-	//}
-
-	//if (input_->PushKey(DIK_UP)) {
-	//	move.y += kCharacterSpeed;
-	//} else if (input_->PushKey(DIK_DOWN)) {
-	//	move.y -= kCharacterSpeed;
-	//}
-
 	if (input_->PushKey(DIK_A)) {
 		move.x -= kCharacterSpeed;
-	}
-	 else if (input_->PushKey(DIK_D)) {
+	} else if (input_->PushKey(DIK_D)) {
 		move.x += kCharacterSpeed;
 	}
 
-	 if (input_->PushKey(DIK_W)) {
+	if (input_->PushKey(DIK_W)) {
 		move.y += kCharacterSpeed;
-	 } else if (input_->PushKey(DIK_S)) {
+	} else if (input_->PushKey(DIK_S)) {
 		move.y -= kCharacterSpeed;
-	 }
-
-
-	Rotate();
+	}
 
 	worldTransform_.translation_.x += move.x;
 	worldTransform_.translation_.y += move.y;
@@ -75,63 +94,60 @@ void Player::Update(ViewProjection& viewProjection) {
 
 	worldTransform_.UpdateMatrix();
 
-
-	TransformUI(viewProjection);
-
-	Attack();
-
-	for (PlayerBullet* bullet : playerBullets_) {
-		bullet->Update();
-	}
-
-}
-void Player::Draw(ViewProjection& viewProjection) {
-
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-
-	//model_->Draw(worldTransform3DReticle_, viewProjection, textureHandle_);
-
-	for (PlayerBullet* bullet : playerBullets_) {
-		bullet->Draw(viewProjection);
-	}
-
-}
-void Player::Rotate() {
-
-	//const float kRotateSpeed = 0.02f;	
-
-	//if (input_->PushKey(DIK_A)) {
-	//	worldTransform_.rotation_.y -= kRotateSpeed;
-	//} else if (input_->PushKey(DIK_D)) {
-	//	worldTransform_.rotation_.y += kRotateSpeed;
-	//}
-
 }
 
 void Player::Attack() {
-	if (input_->TriggerKey(DIK_SPACE)) {
 
-		const float bulletSpeed = 1.0f;
+	XINPUT_STATE joyState{};
+
+	if (bulletCoolTime <= 0) {
+		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+			if (joyState.Gamepad.wButtons && XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+
+				SetShot();
+
+			}
+		} else if (input_->TriggerKey(DIK_SPACE)) {
+
+			SetShot();
+
+		}
+	}
+
+	if (bulletCoolTime > 0) {
+		bulletCoolTime--;
+	}
+
+}
+
+void Player::SetShot() {
+
+	if (bulletCoolTime <= 0) {
+
+		const float bulletSpeed = 4.0f;
 		Vector3 velosity(0.0f, 0.0f, 1.0f);
 
 		velosity = worldTransform3DReticle_.translation_ - GetWorldPosition();
 		velosity = Normalize(velosity) * bulletSpeed;
 
 		PlayerBullet* newBullet = new PlayerBullet;
-		newBullet->Initialize(model_, GetWorldPosition(), velosity);
+		newBullet->Initialize(bulletModel_, GetWorldPosition(), velosity);
 
 		playerBullets_.push_back(newBullet);
 
+		bulletCoolTime = 3;
+
 	}
+
 }
 
-void Player::OnCollision() {}
+void Player::OnCollision() { playerLife--; }
 
 void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ = parent; }
 
 void Player::TransformUI(ViewProjection& viewProjection) {
 
-	const float kDistancePlayerTo3DReticle = 50.0f;
+	/*const float kDistancePlayerTo3DReticle = 50.0f;
 	Vector3 offset = {0.0f, 0.0f, 1.0f};
 	offset = TransformNormal(offset, worldTransform_.matWorld_);
 	offset = Normalize(offset) * kDistancePlayerTo3DReticle;
@@ -152,38 +168,51 @@ void Player::TransformUI(ViewProjection& viewProjection) {
 
 	positionReticle = Transform(positionReticle, matViewProjectionViewPort);
 
-	sprite2DReticle_->SetPosition(Vector2(positionReticle.x,positionReticle.y));
+	sprite2DReticle_->SetPosition(Vector2(positionReticle.x,positionReticle.y));*/
 
 
-	//POINT mousePosition{};
-	//GetCursorPos(&mousePosition);
+	POINT mousePosition{};
+	GetCursorPos(&mousePosition);
 
-	//HWND hwnd = WinApp::GetInstance()->GetHwnd();
-	//ScreenToClient(hwnd, &mousePosition);
+	HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	ScreenToClient(hwnd, &mousePosition);
 
-	//sprite2DReticle_->SetPosition({float(mousePosition.x), float(mousePosition.y)});
+	Vector2 spritePosition = sprite2DReticle_->GetPosition();
+	XINPUT_STATE joyState{};
 
-	//Matrix4x4 matViewport =
-	//    MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		spritePosition.x += (float)joyState.Gamepad.sThumbRX / SHRT_MAX * 10.0f;
+		spritePosition.y -= (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 10.0f;
 
-	//Matrix4x4 matViewProjectionViewPort =
-	//    viewProjection.matView * viewProjection.matProjection * matViewport;
+		sprite2DReticle_->SetPosition(spritePosition);
+	} else {
+		sprite2DReticle_->SetPosition({float(mousePosition.x), float(mousePosition.y)});
+	}
 
-	//Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewPort);
+	Matrix4x4 matViewport =
+	    MakeViewportMatrix(0, 0, WinApp::kWindowWidth, WinApp::kWindowHeight, 0, 1);
 
-	//Vector3 posNear = Vector3(float(mousePosition.x), float(mousePosition.y), 0.0f);
-	//Vector3 posFar = Vector3(float(mousePosition.x), float(mousePosition.y), 1.0f);
+	Matrix4x4 matViewProjectionViewPort =
+	    viewProjection.matView * viewProjection.matProjection * matViewport;
 
-	//posNear = Transform(posNear, matInverseVPV);
-	//posFar = Transform(posFar, matInverseVPV);
+	Matrix4x4 matInverseVPV = Inverse(matViewProjectionViewPort);
 
-	//Vector3 mouseDirection = posNear - posFar;
-	//mouseDirection = Normalize(mouseDirection);
+	Vector3 posNear{};
+	Vector3 posFar{};
 
-	//const float kDistanceObject = 100.0f;
+	posNear = Vector3(float(sprite2DReticle_->GetPosition().x), float(sprite2DReticle_->GetPosition().y), 0.0f);
+	posFar = Vector3(float(sprite2DReticle_->GetPosition().x), float(sprite2DReticle_->GetPosition().y), 1.0f);
 
-	//worldTransform3DReticle_.translation_ = posNear - (mouseDirection * kDistanceObject);
-	//worldTransform3DReticle_.UpdateMatrix();
+	posNear = Transform(posNear, matInverseVPV);
+	posFar = Transform(posFar, matInverseVPV);
+
+	Vector3 reticleDirection = posNear - posFar;
+	reticleDirection = Normalize(reticleDirection);
+
+	const float kDistanceObject = 100.0f;
+
+	worldTransform3DReticle_.translation_ = posNear - (reticleDirection * kDistanceObject);
+	worldTransform3DReticle_.UpdateMatrix();
 
 }
 

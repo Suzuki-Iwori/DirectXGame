@@ -71,38 +71,67 @@ public: // メンバ関数
 	/// </summary>
 	void UpdateEnemyPopCommand();
 
-private: // メンバ変数
+	/// <summary>
+	/// スコア加算処理
+	/// </summary>
+	void AddScore() { score++; }
 
+	/// <summary>
+	/// 表示用スコア変換処理
+	/// </summary>
+	void ConvertScore();
+
+private: // メンバ変数
 
 	/// <summary>
 	/// 2つのコライダーの接触判定
 	/// </summary>
 	void CheckColliderPair(Collider* cA, Collider* cB);
 
-
+	//システム関連
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
-
-	uint32_t textureHandle_ = 0u;
-	Model* model_ = nullptr;
 	ViewProjection viewProjection_;
-	Player* player_ = nullptr;
-	std::list<Enemy*> enemy_;
-	std::list<EnemyBullet*> enemyBullets_;
-	Skydome* skydome_ = nullptr;
-	Model* skydomeModel_ = nullptr;
-
-	Model* enemyModel_ = nullptr;
-
-	RailCamera* railCamera_ = nullptr;
-
-	bool isDebugCameraActive_ = false;
-	DebugCamera* debugCamera_ = nullptr;
 
 	std::stringstream enemyPopCommands_;
 	bool isWaitingCommand = false;
 	int waitingCommandTimer = 0;
+
+	bool isGameEnd = false;
+
+	uint32_t score = 0u;
+	uint32_t scoreDigit[3]{};
+
+	uint32_t resultFrame = 0u;
+
+	float scoreAlpha = 1.0f;
+	bool resultDisplay = false;
+
+	//モデル
+	Model* playeModel_ = nullptr;
+	Model* skydomeModel_ = nullptr;
+	Model* enemyModel_ = nullptr;
+	Model* playerBulletModel_ = nullptr;
+	Model* enemyBulletModel_ = nullptr;
+
+	//スプライトとテクスチャ
+	uint32_t lifeTexture_ = 0u;
+	Sprite* playerLifeImage_[4] = {nullptr};
+
+	uint32_t numberTexture_[10] = {0u};
+	Sprite* numberImage_[10][3] = {nullptr};
+
+	//オブジェクト
+	Player* player_ = nullptr;
+	std::list<Enemy*> enemy_;
+	std::list<EnemyBullet*> enemyBullets_;
+	Skydome* skydome_ = nullptr;
+
+	//カメラ
+	bool isDebugCameraActive_ = false;
+	DebugCamera* debugCamera_ = nullptr;
+	RailCamera* railCamera_ = nullptr;	
 
 	/// <summary>
 	/// ゲームシーン用

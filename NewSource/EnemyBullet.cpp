@@ -1,18 +1,21 @@
 #include "EnemyBullet.h"
+#include "GameScene.h"
 
-void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector3& velosity) {
+void EnemyBullet::Initialize(
+    Model* model, const Vector3& position, const Vector3& velosity) {
 	assert(model);
 
 	model_ = model;
-	textureHandle_ = TextureManager::Load("./Resources/red1x1.png");
+
+	textureHandle_ = TextureManager::Load("./Resources/enemyBullet/enemyBullet.png");
 	worldTransform_.Initialize();
 	velosity_ = velosity;
 
 	worldTransform_.translation_ = position;
 
-	worldTransform_.scale_.x = 0.5f;
-	worldTransform_.scale_.y = 0.5f;
-	worldTransform_.scale_.z = 3.0f;
+	worldTransform_.scale_.x = 1.0f;
+	worldTransform_.scale_.y = 1.0f;
+	worldTransform_.scale_.z = 1.0f;
 
 	worldTransform_.rotation_.y = std::atan2f(velosity_.x, velosity_.z);
 
@@ -25,6 +28,9 @@ void EnemyBullet::Update() {
 
 	worldTransform_.translation_ += velosity_;
 
+	worldTransform_.rotation_.z += 0.1f;
+	worldTransform_.rotation_.y += 0.1f;
+
 	worldTransform_.UpdateMatrix();
 
 	if (--deathTimer_ <= 0) {
@@ -35,7 +41,7 @@ void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 }
-void EnemyBullet::OnCollision() { isDead_ = true; }
+void EnemyBullet::OnCollision() { isDestroyed_ = true; }
 Vector3 EnemyBullet::GetWorldPosition() {
 	Vector3 worldPosition{};
 
