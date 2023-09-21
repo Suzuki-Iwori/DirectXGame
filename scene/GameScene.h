@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scene.h"
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "Input.h"
@@ -8,11 +9,18 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "Player.h"
+#include "Enemy.h"
+#include "Skydome.h"
+#include "Particle.h"
+#include "RailCamera.h"
+#include <sstream>
+#include <DebugCamera.h>
 
 /// <summary>
 /// ゲームシーン
 /// </summary>
-class GameScene {
+class GameScene : public Scene {
 
 public: // メンバ関数
 	/// <summary>
@@ -40,10 +48,120 @@ public: // メンバ関数
 	/// </summary>
 	void Draw();
 
+	/// <summary>
+	/// 接触判定
+	/// </summary>
+	void CheckAllCollisions();
+
+	/// <summary>
+	/// 敵弾の追加
+	/// </summary>
+	void AddEnemyBullet(EnemyBullet* enemyBullet);
+
+	/// <summary>
+	/// 敵の追加
+	/// </summary>
+	void AddEnemy(const Vector3& position);
+
+	/// <summary>
+	/// リスト達回す用
+	/// </summary>
+	void UpdateList();
+
+	/// <summary>
+	/// 敵の追加コマンド読み込み
+	/// </summary>
+	void LoadEnemyPopCommand();
+
+	/// <summary>
+	/// 敵の追加コマンド処理
+	/// </summary>
+	void UpdateEnemyPopCommand();
+
+	/// <summary>
+	/// スコア加算処理
+	/// </summary>
+	void AddScore() { score++; }
+
+	/// <summary>
+	/// 表示用スコア変換処理
+	/// </summary>
+	void ConvertScore();
+
+	/// <summary>
+	/// パーティクル生成関数
+	/// </summary>
+	void AddParticle(const uint32_t& num, const Vector3& position);
+
+	/// <summary>
+	/// 再初期化処理
+	/// </summary>
+	void Restart();
+
 private: // メンバ変数
+
+	/// <summary>
+	/// 2つのコライダーの接触判定
+	/// </summary>
+	void CheckColliderPair(Collider* cA, Collider* cB);
+
+	//システム関連
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
+	ViewProjection viewProjection_;
+
+	std::stringstream enemyPopCommands_;
+	bool isWaitingCommand = false;
+	int waitingCommandTimer = 0;
+
+	bool isGameEnd = false;
+
+	uint32_t score = 0u;
+	uint32_t scoreDigit[3]{};
+
+	uint32_t resultFrame = 0u;
+
+	float scoreAlpha = 1.0f;
+	float blackoutAlpha = 0.0f;
+	bool resultDisplay = false;
+
+	uint32_t restartFrame = 0u;
+	float restartAlpha = 0.0f;
+	bool restartFrag = false;
+
+	XINPUT_STATE joyState{};
+
+	//モデル
+	Model* playeModel_ = nullptr;
+	Model* skydomeModel_ = nullptr;
+	Model* enemyModel_ = nullptr;
+	Model* playerBulletModel_ = nullptr;
+	Model* enemyBulletModel_ = nullptr;
+	Model* particleModel_ = nullptr;
+
+	//スプライトとテクスチャ
+	uint32_t lifeTexture_ = 0u;
+	Sprite* playerLifeImage_[4] = {nullptr};
+
+	uint32_t numberTexture_[10] = {0u};
+	Sprite* numberImage_[10][3] = {nullptr};
+
+	uint32_t blackoutTexture_ = 0;
+	Sprite* blackoutImage_ = nullptr;
+	Sprite* restartImage_ = nullptr;
+
+	//オブジェクト
+	Player* player_ = nullptr;
+	std::list<Enemy*> enemy_;
+	std::list<EnemyBullet*> enemyBullets_;
+	std::list<Particle*> particles_;
+	Skydome* skydome_ = nullptr;
+
+	//カメラ
+	bool isDebugCameraActive_ = false;
+	DebugCamera* debugCamera_ = nullptr;
+	RailCamera* railCamera_ = nullptr;	
 
 	/// <summary>
 	/// ゲームシーン用
