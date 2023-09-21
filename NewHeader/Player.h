@@ -20,6 +20,8 @@ public:
 	void Attack();
 	void SetShot();
 
+	void Restart(const Vector3& position);
+
 	void OnCollision() override;
 
 	void SetParent(const WorldTransform* parent);
@@ -31,15 +33,15 @@ public:
 
 	Vector3 GetWorldPosition() override;
 	const std::list<PlayerBullet*>& GetBullets() { return playerBullets_; };
-	uint32_t GetPlayerLife() { return playerLife; }
-	bool GetPlayerLive() { return isPlayerLive; }
+	uint32_t GetPlayerLife() { return playerLife_; }
+	bool GetPlayerLive() { return isPlayerLive_; }
 
 private:
 	uint32_t textureHandle_ = 0u;
-	uint32_t bulletCoolTime = 0;
+	uint32_t bulletCoolTime_ = 0;
 
-	uint32_t playerLife = 4;
-	bool isPlayerLive = true;
+	uint32_t playerLife_ = 4;
+	bool isPlayerLive_ = true;
 
 	WorldTransform worldTransform_;
 	Model* model_ = nullptr;

@@ -6,8 +6,11 @@
 #include "PrimitiveDrawer.h"
 #include "TextureManager.h"
 #include "WinApp.h"
+#include "sceneManager.h"
 #include <time.h>
 #include <stdlib.h>
+
+bool Scene::sceneTransition[(unsigned int)SceneList::Scene_Num];
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -15,15 +18,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	DirectXCommon* dxCommon = nullptr;
 
 	//乱数生成用
-	time_t currentTime = time(nullptr);
-	srand((unsigned int)currentTime);
+	srand(unsigned int(time(nullptr)));
 	
 	// 汎用機能
 	Input* input = nullptr;
 	Audio* audio = nullptr;
 	AxisIndicator* axisIndicator = nullptr;
 	PrimitiveDrawer* primitiveDrawer = nullptr;
-	GameScene* gameScene = nullptr;
+
+	SceneManager* gameScene = nullptr;
+
+	//GameScene* gameScene = nullptr;
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
@@ -65,7 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 	// ゲームシーンの初期化
-	gameScene = new GameScene();
+	gameScene = new SceneManager();
 	gameScene->Initialize();
 
 	// メインループ

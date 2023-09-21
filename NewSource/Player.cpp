@@ -35,8 +35,8 @@ void Player::Update(ViewProjection& viewProjection) {
 
 	Attack();
 
-	if (playerLife <= 0) {
-		isPlayerLive = false;
+	if (playerLife_ <= 0) {
+		isPlayerLive_ = false;
 	}
 
 	for (PlayerBullet* bullet : playerBullets_) {
@@ -71,18 +71,6 @@ void Player::Move() {
 	const float kLimitX = 33.0f;
 	const float kLimitY = 17.0f;
 
-	if (input_->PushKey(DIK_A)) {
-		move.x -= kCharacterSpeed;
-	} else if (input_->PushKey(DIK_D)) {
-		move.x += kCharacterSpeed;
-	}
-
-	if (input_->PushKey(DIK_W)) {
-		move.y += kCharacterSpeed;
-	} else if (input_->PushKey(DIK_S)) {
-		move.y -= kCharacterSpeed;
-	}
-
 	worldTransform_.translation_.x += move.x;
 	worldTransform_.translation_.y += move.y;
 	worldTransform_.translation_.z += move.z;
@@ -100,29 +88,25 @@ void Player::Attack() {
 
 	XINPUT_STATE joyState{};
 
-	if (bulletCoolTime <= 0) {
+	if (bulletCoolTime_ <= 0) {
 		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
-			if (joyState.Gamepad.wButtons && XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+			if (joyState.Gamepad.wButtons == XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 
 				SetShot();
 
 			}
-		} else if (input_->TriggerKey(DIK_SPACE)) {
-
-			SetShot();
-
 		}
 	}
 
-	if (bulletCoolTime > 0) {
-		bulletCoolTime--;
+	if (bulletCoolTime_ > 0) {
+		bulletCoolTime_--;
 	}
 
 }
 
 void Player::SetShot() {
 
-	if (bulletCoolTime <= 0) {
+	if (bulletCoolTime_ <= 0) {
 
 		const float bulletSpeed = 4.0f;
 		Vector3 velosity(0.0f, 0.0f, 1.0f);
@@ -135,13 +119,25 @@ void Player::SetShot() {
 
 		playerBullets_.push_back(newBullet);
 
-		bulletCoolTime = 3;
+		bulletCoolTime_ = 3;
 
 	}
 
 }
 
-void Player::OnCollision() { playerLife--; }
+void Player::Restart(const Vector3& position) {
+
+	playerLife_ = 4;
+	isPlayerLive_ = true;
+	bulletCoolTime_ = 0;
+
+	worldTransform_.translation_ = position;
+
+	sprite2DReticle_->SetPosition({640.0f, 360.0f});
+
+}
+
+void Player::OnCollision() { playerLife_--; }
 
 void Player::SetParent(const WorldTransform* parent) { worldTransform_.parent_ = parent; }
 
@@ -171,11 +167,11 @@ void Player::TransformUI(ViewProjection& viewProjection) {
 	sprite2DReticle_->SetPosition(Vector2(positionReticle.x,positionReticle.y));*/
 
 
-	POINT mousePosition{};
-	GetCursorPos(&mousePosition);
+	//POINT mousePosition{};
+	//GetCursorPos(&mousePosition);
 
-	HWND hwnd = WinApp::GetInstance()->GetHwnd();
-	ScreenToClient(hwnd, &mousePosition);
+	//HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	//ScreenToClient(hwnd, &mousePosition);
 
 	Vector2 spritePosition = sprite2DReticle_->GetPosition();
 	XINPUT_STATE joyState{};
@@ -185,8 +181,21 @@ void Player::TransformUI(ViewProjection& viewProjection) {
 		spritePosition.y -= (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 10.0f;
 
 		sprite2DReticle_->SetPosition(spritePosition);
-	} else {
+	} /* else {
 		sprite2DReticle_->SetPosition({float(mousePosition.x), float(mousePosition.y)});
+	}*/
+
+	if (sprite2DReticle_->GetPosition().x < 0.0f) {
+		sprite2DReticle_->SetPosition({0.0f, sprite2DReticle_->GetPosition().y});
+	}
+	if (sprite2DReticle_->GetPosition().x > 1280.0f) {
+		sprite2DReticle_->SetPosition({1280.0f, sprite2DReticle_->GetPosition().y});
+	}
+	if (sprite2DReticle_->GetPosition().y < 0.0f) {
+		sprite2DReticle_->SetPosition({sprite2DReticle_->GetPosition().x, 00.0f});
+	}
+	if (sprite2DReticle_->GetPosition().y > 720.0f) {
+		sprite2DReticle_->SetPosition({sprite2DReticle_->GetPosition().x, 720.0f});
 	}
 
 	Matrix4x4 matViewport =

@@ -28,7 +28,8 @@ GameScene::~GameScene() {
 		}
 	}
 
-	delete backgroundImage_;
+	delete blackoutImage_;
+	delete restartImage_;
 
 	for (const auto& enemy : enemy_) {
 		delete enemy;
@@ -55,9 +56,10 @@ void GameScene::Initialize() {
 	score = 0u;
 	resultFrame = 0u;
 	scoreAlpha = 1.0f;
-	backgroundAlpha = 0.0f;
+	blackoutAlpha = 0.0f;
+	restartAlpha = 1.0f;
+	isGameEnd = false;
 	resultDisplay = false;
-
 
 	//モデル初期化
 	playeModel_ = Model::CreateFromOBJ("flyPlayer", true);
@@ -69,7 +71,7 @@ void GameScene::Initialize() {
 	//スプライト初期化
 	TextureManager::Load("target.png");
 
-	lifeTexture_ = TextureManager::Load("heart.png");
+	lifeTexture_ = TextureManager::Load("texture/heart.png");
 	for (uint32_t i = 0; i < 4; i++) {
 		playerLifeImage_[i] = 
 			Sprite::Create(lifeTexture_, {(10.0f + i * 74.0f), 10.0f}, {1, 1, 1, 1}, {0.0f, 0.0f});
@@ -93,8 +95,9 @@ void GameScene::Initialize() {
 		}
 	}
 
-	backgroundTexture_ = TextureManager::Load("Background.png");
-	backgroundImage_ = Sprite::Create(backgroundTexture_, {0.0f, 0.0f}, {1, 1, 1, 0}, {0.0f, 0.0f});
+	blackoutTexture_ = TextureManager::Load("texture/Background.png");
+	blackoutImage_ = Sprite::Create(blackoutTexture_, {0.0f, 0.0f}, {1, 1, 1, 0}, {0.0f, 0.0f});
+	restartImage_ = Sprite::Create(blackoutTexture_, {0.0f, 0.0f}, {1, 1, 1, 0}, {0.0f, 0.0f});
 
 	//オブジェクト初期化
 	player_ = new Player;
@@ -108,7 +111,7 @@ void GameScene::Initialize() {
 	player_->SetParent(&railCamera_->GetWorldTransform());
 
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
-	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetVisible(false);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 
 	enemyBulletModel_ = Model::CreateFromOBJ("enemyBullet", true);
@@ -117,6 +120,7 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
+
 
 	if (!isGameEnd) {
 #ifdef _DEBUG
@@ -149,6 +153,12 @@ void GameScene::Update() {
 		skydome_->Update();
 		railCamera_->Update();
 
+		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+			if (joyState.Gamepad.wButtons == XINPUT_GAMEPAD_LEFT_SHOULDER) {
+				restartFrag = true;
+			}
+		}
+
 
 	} else {
 		resultFrame++;
@@ -161,7 +171,7 @@ void GameScene::Update() {
 			scoreAlpha -= 0.02f;
 		} else {
 			scoreAlpha += 0.02f;
-			backgroundAlpha += 0.015f;
+			blackoutAlpha += 0.015f;
 		}
 		if (scoreAlpha > 1.0f) {
 			scoreAlpha = 1.0f;
@@ -170,11 +180,11 @@ void GameScene::Update() {
 			scoreAlpha = 0.0f;
 		}
 
-		if (backgroundAlpha > 0.75f) {
-			backgroundAlpha = 0.75f;
+		if (blackoutAlpha > 0.75f) {
+			blackoutAlpha = 0.75f;
 		}
-		if (backgroundAlpha < 0.0f) {
-			backgroundAlpha = 0.0f;
+		if (blackoutAlpha < 0.0f) {
+			blackoutAlpha = 0.0f;
 		}
 
 		for (uint32_t i = 0; i < 10; i++) {
@@ -192,9 +202,31 @@ void GameScene::Update() {
 			}
 		}
 
-		backgroundImage_->SetColor({1.0f, 1.0f, 1.0f, backgroundAlpha});
+
+		if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+			if (joyState.Gamepad.wButtons == XINPUT_GAMEPAD_RIGHT_SHOULDER ||
+			    joyState.Gamepad.wButtons == XINPUT_GAMEPAD_LEFT_SHOULDER) {
+				if (resultDisplay) {
+					restartFrag = true;
+				}
+			}
+		}
 
 	}
+
+
+	if (restartFrag) {
+		Restart();
+	}
+
+
+	if (restartAlpha > 0.0f && !restartFrag) {
+		restartAlpha -= 0.02f;
+	}
+
+
+	blackoutImage_->SetColor({1.0f, 1.0f, 1.0f, blackoutAlpha});
+	restartImage_->SetColor({1.0f, 1.0f, 1.0f, restartAlpha});
 
 	CheckAllCollisions();
 
@@ -263,7 +295,7 @@ void GameScene::Draw() {
 		playerLifeImage_[i]->Draw();
 	}
 
-	backgroundImage_->Draw();
+	blackoutImage_->Draw();
 
 	for (uint32_t i = 0; i < 10; i++) {
 		for (uint32_t j = 0; j < 3; j++) {
@@ -277,6 +309,7 @@ void GameScene::Draw() {
 		}
 	}
 
+	restartImage_->Draw();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
@@ -300,6 +333,52 @@ void GameScene::AddParticle(const uint32_t& num, const Vector3& position) {
 		newParticle->Initialize(particleModel_, position);
 
 		particles_.push_back(newParticle);
+
+	}
+
+}
+
+void GameScene::Restart() {
+
+	restartFrame++;
+
+	restartAlpha += 0.04f;
+
+	if (restartFrame == 25) {
+
+		Vector3 playerPosition = {0.0f, 0.0f, 50.0f};
+
+		score = 0u;
+		resultFrame = 0u;
+		scoreAlpha = 1.0f;
+		blackoutAlpha = 0.0f;
+		isGameEnd = false;
+		resultDisplay = false;
+		restartFrame = 0u;
+		restartFrag = false;
+
+		// スプライト初期化
+		for (uint32_t i = 0; i < 10; i++) {
+			for (uint32_t j = 0; j < 3; j++) {
+				numberImage_[i][j]->SetPosition({(10.0f + j * 58.0f), 84.0f});
+			}
+		}
+		blackoutImage_->SetColor({1, 1, 1, 0});
+
+		// オブジェクト初期化
+		player_->Restart({playerPosition});
+
+		railCamera_->Initialize({0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
+
+		enemy_.clear();
+		enemyBullets_.clear();
+		particles_.clear();
+
+		// スクリプト初期化
+		enemyPopCommands_.str("");
+		enemyPopCommands_.clear(std::stringstream::goodbit);
+
+		LoadEnemyPopCommand();
 
 	}
 
@@ -373,7 +452,7 @@ void GameScene::AddEnemy(const Vector3& position) {
 
 void GameScene::UpdateList() {
 
-		for (const auto& enemy : enemy_) {
+	for (const auto& enemy : enemy_) {
 		enemy->Update();
 	}
 
@@ -480,5 +559,4 @@ void GameScene::UpdateEnemyPopCommand() {
 			isGameEnd = true;
 		}
 	}
-
 }

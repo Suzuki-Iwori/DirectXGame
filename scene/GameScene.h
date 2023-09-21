@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scene.h"
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "Input.h"
@@ -19,7 +20,7 @@
 /// <summary>
 /// ゲームシーン
 /// </summary>
-class GameScene {
+class GameScene : public Scene {
 
 public: // メンバ関数
 	/// <summary>
@@ -92,6 +93,11 @@ public: // メンバ関数
 	/// </summary>
 	void AddParticle(const uint32_t& num, const Vector3& position);
 
+	/// <summary>
+	/// 再初期化処理
+	/// </summary>
+	void Restart();
+
 private: // メンバ変数
 
 	/// <summary>
@@ -117,8 +123,14 @@ private: // メンバ変数
 	uint32_t resultFrame = 0u;
 
 	float scoreAlpha = 1.0f;
-	float backgroundAlpha = 0.0f;
+	float blackoutAlpha = 0.0f;
 	bool resultDisplay = false;
+
+	uint32_t restartFrame = 0u;
+	float restartAlpha = 0.0f;
+	bool restartFrag = false;
+
+	XINPUT_STATE joyState{};
 
 	//モデル
 	Model* playeModel_ = nullptr;
@@ -135,8 +147,9 @@ private: // メンバ変数
 	uint32_t numberTexture_[10] = {0u};
 	Sprite* numberImage_[10][3] = {nullptr};
 
-	uint32_t backgroundTexture_ = 0;
-	Sprite* backgroundImage_ = nullptr;
+	uint32_t blackoutTexture_ = 0;
+	Sprite* blackoutImage_ = nullptr;
+	Sprite* restartImage_ = nullptr;
 
 	//オブジェクト
 	Player* player_ = nullptr;

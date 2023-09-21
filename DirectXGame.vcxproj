@@ -122,8 +122,11 @@
     <ClCompile Include="NewSource\Player.cpp" />
     <ClCompile Include="NewSource\PlayerBullet.cpp" />
     <ClCompile Include="NewSource\RailCamera.cpp" />
+    <ClCompile Include="NewSource\Scene.cpp" />
+    <ClCompile Include="NewSource\SceneManager.cpp" />
     <ClCompile Include="NewSource\Skydome.cpp" />
     <ClCompile Include="NewSource\TimeCall.cpp" />
+    <ClCompile Include="NewSource\TitleScene.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -163,8 +166,11 @@
     <ClInclude Include="NewHeader\PlayerBullet.h" />
     <ClInclude Include="NewHeader\RailCamera.h" />
     <ClInclude Include="NewHeader\Random.h" />
+    <ClInclude Include="NewHeader\Scene.h" />
+    <ClInclude Include="NewHeader\SceneManager.h" />
     <ClInclude Include="NewHeader\Skydome.h" />
     <ClInclude Include="NewHeader\TimeCall.h" />
+    <ClInclude Include="NewHeader\TitleScene.h" />
     <ClInclude Include="scene\GameScene.h" />
   </ItemGroup>
   <ItemGroup>
